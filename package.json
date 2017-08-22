@@ -1,0 +1,28 @@
+{
+  "name": "anxeb",
+  "version": "1.0.0",
+  "description": "Highly scalable NodeJs web application bundle.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nodrix/anxeb.git"
+  },
+  "keywords": [
+    "mongodb",
+    "expressjs",
+    "nodejs",
+    "angularjs",
+    "javascript",
+    "web",
+    "mongus"
+  ],
+  "author": "Eduardo Rosario <erosario@nodrix.com> (http://nodrix.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nodrix/anxeb/issues"
+  },
+  "homepage": "https://github.com/nodrix/anxeb#readme"
+}
