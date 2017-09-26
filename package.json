@@ -1,6 +1,6 @@
 {
-  "name": "Anxeb",
-  "version": "1.0.0",
+  "name": "anxeb",
+  "version": "0.1.0",
   "description": "Highly scalable NodeJs web application bundle.",
   "main": "index.js",
   "scripts": {
@@ -24,5 +24,28 @@
   "bugs": {
     "url": "https://github.com/nodrix/anxeb/issues"
   },
-  "homepage": "https://github.com/nodrix/anxeb#readme"
+  "homepage": "https://github.com/nodrix/anxeb#readme",
+  "dependencies": {
+    "async": "^2.5.0",
+    "bluebird": "^3.5.0",
+    "body-parser": "^1.18.0",
+    "cli-color": "^1.2.0",
+    "connect-redis": "^3.3.0",
+    "cors": "^2.8.4",
+    "express": "^4.15.4",
+    "express-hbs": "^1.0.4",
+    "express-session": "^1.15.5",
+    "fs": "0.0.1-security",
+    "handlebars": "^4.0.10",
+    "http": "0.0.0",
+    "https": "^1.0.0",
+    "mkpath": "^1.0.0",
+    "moment": "^2.18.1",
+    "mongoose": "^4.11.10",
+    "node-schedule": "^1.2.5",
+    "path": "^0.12.7",
+    "serve-favicon": "^2.4.3",
+    "socket.io": "^2.0.3",
+    "url-parse": "^1.1.9"
+  }
 }
