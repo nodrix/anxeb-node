@@ -1,5 +1,5 @@
 # Nodrix Anxeb
-Highly scalable NodeJs web application framwork.
+Highly scalable NodeJs web application framework.
 
 - AngularJS
 - NodeJS
