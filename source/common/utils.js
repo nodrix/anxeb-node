@@ -12,24 +12,24 @@ const utils = {
 		return new URL(url)
 	},
 	file : {
-		write   : function (path, text) {
-			path = utils.fillDateParameters(path);
+		write   : function (filePath, text) {
+			filePath = utils.fillDateParameters(filePath);
 
 			var doAppend = function (canCreateDirectory) {
 				try {
-					fs.appendFileSync(path, text);
+					fs.appendFileSync(filePath, text);
 				} catch (err) {
 					if (err.code === "ENOENT" && canCreateDirectory) {
-						createDir(path.dirname(path));
+						createDir(path.dirname(filePath));
 					} else {
 						console.log(clc.redBright("Could not log event. " + err.message));
 					}
 				}
 			};
 
-			var createDir = function (path) {
+			var createDir = function (dirPath) {
 				try {
-					mkpath.sync(path);
+					mkpath.sync(dirPath);
 					doAppend();
 				} catch (err) {
 					if (err !== null) {
