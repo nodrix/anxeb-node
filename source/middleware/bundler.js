@@ -11,12 +11,12 @@ module.exports = function (service) {
 
 	var getVendors = function () {
 		var result = ["<!-- Dependency Vendors -->"];
-		result.push('<script src="/anxeb/bundle/vendors/angular/angular.js"></script>');
-		result.push('<script src="/anxeb/bundle/vendors/angular/angular-animate.js"></script>');
-		result.push('<script src="/anxeb/bundle/vendors/angular/angular-storage.js"></script>');
-		result.push('<script src="/anxeb/bundle/vendors/angular/angular-ui-router.js"></script>');
-		result.push('<script src="/anxeb/bundle/vendors/jquery/jquery.js"></script>');
-		result.push('<script src="/anxeb/bundle/vendors/socket/socket.io.js"></script>');
+		result.push('<script src="/anxeb/bundle/vendors/angular/angular.min.js"></script>');
+		result.push('<script src="/anxeb/bundle/vendors/angular/angular-animate.min.js"></script>');
+		result.push('<script src="/anxeb/bundle/vendors/angular/angular-storage.min.js"></script>');
+		result.push('<script src="/anxeb/bundle/vendors/angular/angular-ui-router.min.js"></script>');
+		result.push('<script src="/anxeb/bundle/vendors/jquery/jquery.min.js"></script>');
+		result.push('<script src="/anxeb/bundle/vendors/socket/socket.io.min.js"></script>');
 		return result.join("\n") + "\n";
 	};
 
@@ -36,21 +36,27 @@ module.exports = function (service) {
 		return result.join("\n") + "\n";
 	};
 
-	var getApplicationBundle = function () {
+	var getInit = function () {
+		var result = ["<!-- Anxeb Base Script -->"];
+		result.push('<script src="/anxeb/bundle/computed/init.js"></script>');
+		return result.join("\n") + "\n";
+	};
+
+	var getMiddleware = function () {
 		var result = ["<!-- Application Bundle -->"];
-		result.push('<script src="/anxeb/bundle/global/anxeb.js"></script>');
-		result.push('<script src="/anxeb/bundle/global/utils.js"></script>');
-		result.push('<script src="/anxeb/bundle/helpers/enums.js"></script>');
-		result.push('<script src="/anxeb/bundle/helpers/event.js"></script>');
+		result.push('<script src="/anxeb/bundle/middleware/config.js"></script>');
+		result.push('<script src="/anxeb/bundle/middleware/utils.js"></script>');
+		result.push('<script src="/anxeb/bundle/middleware/enums.js"></script>');
+		result.push('<script src="/anxeb/bundle/middleware/event.js"></script>');
 		result.push('<script src="/anxeb/bundle/services/page.js"></script>');
 		result.push('<script src="/anxeb/bundle/services/request.js"></script>');
 		result.push('<script src="/anxeb/bundle/services/session.js"></script>');
 		result.push('<script src="/anxeb/bundle/services/interceptor.js"></script>');
 		result.push('<script src="/anxeb/bundle/services/socket.js"></script>');
 		result.push('<script src="/anxeb/bundle/directives/ng-enter.js"></script>');
-		result.push('<script src="/anxeb/bundle/global/common.js"></script>');
+		result.push('<script src="/anxeb/bundle/middleware/global.js"></script>');
 		result.push('<script src="/anxeb/bundle/computed/states.js"></script>');
-		result.push('<script src="/anxeb/bundle/computed/init.js"></script>');
+
 		return result.join("\n") + "\n";
 	};
 
@@ -64,8 +70,28 @@ module.exports = function (service) {
 		return null;
 	};
 
-	_self.scripts = function () {
-		return getVendors() + "\n" + getApplicationBundle() + "\n" + getControllers();
+	_self.all = function () {
+		return getInit() + "\n" + getVendors() + "\n" + getMiddleware() + "\n" + getControllers();
+	};
+
+	_self.anxeb = function () {
+		return getInit() + "\n" + getMiddleware() + "\n" + getControllers();
+	};
+
+	_self.init = function () {
+		return getInit();
+	};
+
+	_self.vendors = function () {
+		return getVendors();
+	};
+
+	_self.middleware = function () {
+		return getMiddleware();
+	};
+
+	_self.controllers = function () {
+		return getControllers();
 	};
 
 };

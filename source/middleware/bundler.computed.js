@@ -70,11 +70,32 @@ module.exports = function (service) {
 
 	_self.init = function () {
 		if (!_initScript) {
-			var result = ["var initialize = function() {"];
-			result.push("\tanxeb.defaults.states.login = '" + _service.defaults.states.login.link + "';");
-			result.push("}");
 
-			result.push("\ninitialize();");
+			var modules = '[]';
+
+			if (_service.settings.service.client && _service.settings.service.client && _service.settings.service.client.modules && _service.settings.service.client.modules.length > 0) {
+				modules = '[' + _service.settings.service.client.modules.map(function (item) {
+						return '"' + item + '"';
+					}).join(',') + ']';
+			}
+
+			var result = [];
+			result.push('var initialize = function() {');
+			result.push('\treturn {');
+			result.push('\t\tmodules  : ' + (modules ? modules : '["ui.router", "angular-storage"]') + ',');
+			if (_service.settings.service.client && _service.settings.service.client.settings) {
+				result.push('\t\tsettings: ' + JSON.stringify(_service.settings.service.client.settings) + ",");
+			}
+			result.push('\t\tdefaults : {');
+			result.push('\t\t\tstates : {');
+			result.push('\t\t\t\texception : null,');
+			result.push('\t\t\t\tlogin     : ' + (_service.defaults.states && _service.defaults.states.login.link ? '"' + _service.defaults.states.login.link + '"' : 'null'));
+			result.push('\t\t\t}');
+			result.push('\t\t}');
+			result.push('\t};');
+			result.push('}');
+
+			result.push("\nvar anxeb = initialize();");
 			_initScript = result.join("\n");
 		}
 		return _initScript;
