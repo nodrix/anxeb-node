@@ -17,7 +17,11 @@
 	"angularjs",
 	"javascript",
 	"web",
-	"mongus"
+	"mongus",
+	"schedule",
+	"socket.io",
+	"handlebars",
+	"smart"
   ],
   "author" : "Eduardo Rosario <erosario@nodrix.com> (http://nodrix.com)",
   "license" : "MIT",
