@@ -1,3 +1,5 @@
+'use strict';
+
 anxeb.app.service("session", function (store, request, page) {
 	var _self = this;
 

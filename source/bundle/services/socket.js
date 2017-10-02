@@ -1,3 +1,5 @@
+'use strict';
+
 anxeb.app.service('socket', function ($rootScope) {
 	var socket = io.connect();
 	return {
