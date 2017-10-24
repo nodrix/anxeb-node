@@ -54,6 +54,7 @@ module.exports = function (service) {
 		result.push('<script src="/anxeb/bundle/services/interceptor.js"></script>');
 		result.push('<script src="/anxeb/bundle/services/socket.js"></script>');
 		result.push('<script src="/anxeb/bundle/directives/ng-enter.js"></script>');
+		result.push('<script src="/anxeb/bundle/directives/focusMe.js"></script>');
 		result.push('<script src="/anxeb/bundle/middleware/global.js"></script>');
 		result.push('<script src="/anxeb/bundle/computed/states.js"></script>');
 
