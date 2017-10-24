@@ -254,6 +254,24 @@ module.exports = function (server, params) {
 		Handlebars.registerPartial('anxeb.vendors', _self.bundler.vendors());
 		Handlebars.registerPartial('anxeb.controllers', _self.bundler.controllers());
 
+		Handlebars.registerHelper('part', function(name) {
+			var blocks  = this._blocks;
+			var content = blocks && blocks[name];
+
+			return content ? content.join('\n') : null;
+		});
+
+		Handlebars.registerHelper('partContent', function (name, options) {
+			var blocks = this._blocks || (this._blocks = {}),
+				block  = blocks[name] || (blocks[name] = []);
+
+			if (block.length === 0) {
+				block.push(options.fn(this).trim());
+			} else {
+				block.push(options.fn(this));
+			}
+		});
+
 		var startJobs = function () {
 			for (var j in _self.jobs) {
 				_self.jobs[j].start();
