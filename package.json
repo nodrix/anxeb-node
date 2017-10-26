@@ -17,7 +17,7 @@
 	"angularjs",
 	"javascript",
 	"web",
-	"mongus",
+	"mongoose",
 	"schedule",
 	"socket.io",
 	"handlebars",
