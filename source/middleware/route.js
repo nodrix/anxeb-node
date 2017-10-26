@@ -67,6 +67,9 @@ module.exports = function (params, type) {
 				complete : function () {
 					this.send();
 				},
+				redirect : function (page) {
+					res.redirect(page);
+				},
 				socket   : _self.service.socket,
 				service  : _self.service,
 				log      : _self.service.log,
@@ -77,8 +80,12 @@ module.exports = function (params, type) {
 				payload  : req.body,
 				route    : _self,
 				req      : req,
-				res      : req,
-				next     : next
+				res      : res,
+				next     : next,
+				custom   : _self.service.customContext,
+				forward  : function (func) {
+					func(req, res, next);
+				}
 			});
 		};
 

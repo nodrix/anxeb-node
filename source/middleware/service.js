@@ -46,10 +46,12 @@ module.exports = function (server, params) {
 	_self.active = params.active;
 	_self.settings = params.settings;
 	_self.callbacks = params.callbacks || {};
+	_self.initialize = params.initialize;
 	_self.actions = {};
 	_self.states = {};
 	_self.jobs = {};
 	_self.clients = [];
+	_self.customContext = {};
 
 	_self.server = server;
 	_self.locate = new utils.locate(_self.server.paths.root);
@@ -296,6 +298,9 @@ module.exports = function (server, params) {
 		beginListening();
 	};
 
+	if (_self.initialize) {
+		_self.initialize(_self, _self.customContext);
+	}
 
 	Object.defineProperty(_self, "models", {
 		get : function () {
