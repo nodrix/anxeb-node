@@ -29,7 +29,6 @@ module.exports = function (service, params) {
 	_self.socket.on('disconnect', function () {
 		if (_self.socket.disconnected) {
 			_self.connected = _self.socket.disconnected;
-			_service.log.debug.socket_client_disconnected.args(_self.socket.id, _self.index).print();
 		}
 	});
 };

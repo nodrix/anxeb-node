@@ -12,21 +12,23 @@ module.exports = function (service) {
 
 	_self.states = function () {
 		if (_statesScript === null) {
-			var result = ["anxeb.app.config(function ($stateProvider) { $stateProvider"];
+			var result = ["var initStates = function() {"];
+
+			result.push("\tanxeb.app.config(function ($stateProvider) { $stateProvider");
 
 			var generateState = function (state) {
 				var _state = state;
-				result.push('\t.state("' + _state.link + '", { ');
-				result.push('\t\tcache: false,');
-				result.push('\t\turl: "' + _state.url + '",');
+				result.push('\t\t.state("' + _state.link + '", { ');
+				result.push('\t\t\tcache: false,');
+				result.push('\t\t\turl: "' + _state.url + '",');
 				if (_state.controller) {
-					result.push('\t\tcontroller: "' + _state.controller.toPascalCase() + 'Controller",');
+					result.push('\t\t\tcontroller: "' + _state.controller.toPascalCase() + 'Controller",');
 				}
-				result.push('\t\ttemplateUrl: function ($stateParams) {');
-				result.push('\t\t\treturn anxeb.utils.getParametersFromState($stateParams, "/anxeb/view/' + _state.view + '");');
-				result.push('\t\t},');
+				result.push('\t\t\ttemplateUrl: function ($stateParams) {');
+				result.push('\t\t\t\treturn anxeb.utils.getParametersFromState($stateParams, "/anxeb/view/' + _state.view + '");');
+				result.push('\t\t\t},');
 
-				result.push('\t})');
+				result.push('\t\t})');
 				if (_state.childs) {
 					for (var name in _state.childs) {
 						generateState(_state.childs[name]);
@@ -36,7 +38,7 @@ module.exports = function (service) {
 
 			var generateContainer = function (state) {
 				if (state && state.container) {
-					result.push('\t.state("' + state.container + '", { templateUrl : "/anxeb/container/' + state.container + '" })');
+					result.push('\t\t.state("' + state.container + '", { templateUrl : "/anxeb/container/' + state.container + '" })');
 				}
 
 				for (var key in _service.states) {
@@ -61,8 +63,12 @@ module.exports = function (service) {
 			}
 			generateContainer();
 
-			result.push("});");
+			result.push("\t});");
+			result.push("}");
+
+			result.push("\ninitStates();");
 			_statesScript = result.join("\n");
+
 		}
 
 		return _statesScript;
