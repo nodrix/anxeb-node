@@ -104,7 +104,11 @@ module.exports = function (server, params) {
 		handlebars  : Handlebars,
 		extname     : '.hbs',
 		partialsDir : _self.settings.service.paths.templates ? _self.locate.path(_self.settings.service.paths.templates.partials) : null,
-		layoutsDir  : _self.settings.service.paths.templates ? _self.locate.path(_self.settings.service.paths.templates.containers) : null
+		layoutsDir  : _self.settings.service.paths.templates ? _self.locate.path(_self.settings.service.paths.templates.containers) : null,
+		onCompile: function(exhbs, source, filename) {
+			var html = source.replace("{{{view}}}", "<div ui-view>{{{body}}}</div>");
+			return exhbs.handlebars.compile(html);
+		}
 	}));
 
 	_self.express.set('view engine', 'hbs');
@@ -215,7 +219,6 @@ module.exports = function (server, params) {
 	}
 
 	_self.socket.on('connection', function (clientSocket) {
-		_self.log.debug.socket_client_connected.args(clientSocket.id, _self.clients.length).print();
 		var client = new Client(_self, { socket : clientSocket, index : _self.clients.length });
 		_self.clients.push(client);
 		clientSocket.on('disconnect', function () {
@@ -236,7 +239,6 @@ module.exports = function (server, params) {
 				res.json(response);
 			} else if (err.event.code === _self.log.exception.unauthorized_access.code && _self.defaults.states.login) {
 				res.redirect(_self.defaults.states.login.path);
-				_self.log.debug.redirect_to.args(_self.defaults.states.login.path).print();
 			} else {
 				if (_self.defaults.states.exception !== null) {
 					response.layout = _self.defaults.states.exception.container;
@@ -256,8 +258,8 @@ module.exports = function (server, params) {
 		Handlebars.registerPartial('anxeb.vendors', _self.bundler.vendors());
 		Handlebars.registerPartial('anxeb.controllers', _self.bundler.controllers());
 
-		Handlebars.registerHelper('part', function(name) {
-			var blocks  = this._blocks;
+		Handlebars.registerHelper('part', function (name) {
+			var blocks = this._blocks;
 			var content = blocks && blocks[name];
 
 			return content ? content.join('\n') : null;
@@ -265,7 +267,7 @@ module.exports = function (server, params) {
 
 		Handlebars.registerHelper('partContent', function (name, options) {
 			var blocks = this._blocks || (this._blocks = {}),
-				block  = blocks[name] || (blocks[name] = []);
+				block = blocks[name] || (blocks[name] = []);
 
 			if (block.length === 0) {
 				block.push(options.fn(this).trim());
