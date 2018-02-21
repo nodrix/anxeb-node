@@ -24,18 +24,30 @@ module.exports = function () {
 		};
 	}
 
+	if (!String.prototype.replaceAll) {
+		String.prototype.replaceAll = function (search, replacement) {
+			var target = this;
+			return target.split(search).join(replacement);
+		}
+	}
+
 	if (!String.prototype.toCamelCase) {
 		String.prototype.toCamelCase = function () {
-			return this.replace(/\s(.)/g, function ($1) { return $1.toUpperCase(); }).replace(/\s/g, '').replace(/^(.)/, function ($1) { return $1.toLowerCase(); });
+			var text = this;
+			text = text.replaceAll(".", " ");
+			return text.replace(/\s(.)/g, function ($1) { return $1.toUpperCase(); }).replace(/\s/g, '').replace(/^(.)/, function ($1) { return $1.toLowerCase(); });
 		}
 	}
 
 	if (!String.prototype.toPascalCase) {
 		String.prototype.toPascalCase = function (spaced) {
+			var text = this;
+			text = text.replaceAll(".", " ").toCamelCase();
+
 			if (spaced) {
-				return this.replace(/([A-Z])/g, ' $1').replace(/^./, function (str) { return str.toUpperCase(); })
+				return text.replace(/([A-Z])/g, ' $1').replace(/^./, function (str) { return str.toUpperCase(); })
 			} else {
-				return this.replace(/^./, function (str) { return str.toUpperCase(); })
+				return text.replace(/^./, function (str) { return str.toUpperCase(); })
 			}
 		}
 	}

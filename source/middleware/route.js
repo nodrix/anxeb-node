@@ -9,9 +9,34 @@ module.exports = function (params, type) {
 	_self.dispatch = {};
 
 	var checkIdentity = function (req, res, next) {
-		if (params.access === Enums.RouteAccess.Private && !req.session.identity) {
-			_self.service.log.exception.unauthorized_access.throw();
+		if (_self.service.keys) {
+			if (res.bearer && res.bearer.client) {
+				if (params.access === Enums.RouteAccess.Private) {
+					_self.service.keys.verify(res.bearer.token, function (err, auth) {
+						if (err) {
+							if (err.message === 'jwt expired') {
+								_self.service.log.exception.expired_token.throw();
+							} else {
+								_self.service.log.exception.invalid_auth.args(err).throw();
+							}
+						} else {
+							if (auth.body.access) {
+								if (auth.body.access.indexOf(params.path) < 0) {
+									_self.service.log.exception.unauthorized_access.throw();
+								}
+							}
+						}
+					});
+				}
+			} else {
+				_self.service.log.exception.invalid_token.throw();
+			}
+		} else {
+			if (params.access === Enums.RouteAccess.Private && !req.session.identity) {
+				_self.service.log.exception.unauthorized_access.throw();
+			}
 		}
+
 		res.setTimeout(params.timeout || 5000, function () {
 			_self.service.log.exception.request_timeout.throw({ next : next });
 		});
@@ -36,8 +61,13 @@ module.exports = function (params, type) {
 			};
 
 			preMethodConfig(req, res);
+
+			var bearer = res.bearer;
+			if (bearer.token) {
+				bearer.auth = _self.service.keys.decode(bearer.token);
+			}
 			method({
-				render   : function (payload) {
+				render      : function (payload) {
 					if (res.finished || res.statusCode === 408) {
 						return;
 					}
@@ -55,7 +85,7 @@ module.exports = function (params, type) {
 					postMethodConfig(req, res, payload);
 					res.render(params.view, payload);
 				},
-				send     : function (payload) {
+				send        : function (payload) {
 					if (res.finished) {
 						return;
 					}
@@ -64,27 +94,34 @@ module.exports = function (params, type) {
 					postMethodConfig(req, res, payload);
 					res.send(payload);
 				},
-				complete : function () {
+				complete    : function () {
 					this.send();
 				},
-				redirect : function (page) {
+				ok          : function () {
+					this.send();
+				},
+				redirect    : function (page) {
 					res.redirect(page);
 				},
-				socket   : _self.service.socket,
-				service  : _self.service,
-				log      : _self.service.log,
-				models   : _self.service.models,
-				session  : req.session,
-				query    : req.query,
-				params   : req.params,
-				payload  : req.body,
-				route    : _self,
-				req      : req,
-				res      : res,
-				next     : next,
-				custom   : _self.service.customContext,
-				forward  : function (func) {
+				socket      : _self.service.socket,
+				service     : _self.service,
+				log         : _self.service.log,
+				models      : _self.service.models,
+				session     : req.session,
+				query       : req.query,
+				params      : req.params,
+				payload     : req.body,
+				bearer      : bearer,
+				route       : _self,
+				req         : req,
+				res         : res,
+				next        : next,
+				application : _self.service.application,
+				forward     : function (func) {
 					func(req, res, next);
+				},
+				sign        : function (payload) {
+					this.send(_self.service.sign(payload));
 				}
 			});
 		};
@@ -105,21 +142,23 @@ module.exports = function (params, type) {
 		checkIdentity(req, res, next);
 	});
 
-	if (params.methods.get) {
-		var getMethod = setupMethod(params.methods.get);
-		_self.dispatch.get = getMethod.dispatch;
-		baseRoute.get(getMethod.route);
-	}
+	if (params.methods) {
+		if (params.methods.get) {
+			var getMethod = setupMethod(params.methods.get);
+			_self.dispatch.get = getMethod.dispatch;
+			baseRoute.get(getMethod.route);
+		}
 
-	if (params.methods.post) {
-		var postMethod = setupMethod(params.methods.post);
-		_self.dispatch.post = postMethod.dispatch;
-		baseRoute.post(postMethod.route);
-	}
+		if (params.methods.post) {
+			var postMethod = setupMethod(params.methods.post);
+			_self.dispatch.post = postMethod.dispatch;
+			baseRoute.post(postMethod.route);
+		}
 
-	if (params.methods.delete) {
-		var deleteMethod = setupMethod(params.methods.delete);
-		_self.dispatch.delete = deleteMethod.dispatch;
-		baseRoute.delete(deleteMethod.route);
+		if (params.methods.delete) {
+			var deleteMethod = setupMethod(params.methods.delete);
+			_self.dispatch.delete = deleteMethod.dispatch;
+			baseRoute.delete(deleteMethod.route);
+		}
 	}
 };

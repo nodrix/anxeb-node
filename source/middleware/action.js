@@ -15,7 +15,7 @@ const Action = function (service, params, parent) {
 	_self.url = params.url ? params.url : "/" + _self.name;
 	_self.path = parent ? utils.join(parent.path, _self.url) : _self.url;
 	_self.access = params.access || (parent ? parent.access : Enums.RouteAccess.Public);
-	_self.timeout = params.timeout;
+	_self.timeout = params.timeout || (parent ? parent.timeout : 5000);
 
 	_self.route = new Route(_self, Enums.RouteType.Action);
 	_self.dispatch = _self.route.dispatch;

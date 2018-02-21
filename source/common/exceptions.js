@@ -78,7 +78,7 @@ module.exports = {
 		type    : Enums.EventType.ServiceException
 	},
 	invalid_token                     : {
-		message : "Invalid access token.",
+		message : "Failed to authenticate token.",
 		code    : 6006,
 		type    : Enums.EventType.ServiceException
 	},
@@ -100,6 +100,21 @@ module.exports = {
 	invalid_internal_api_request      : {
 		message : "Invalid request to [0] internal api. Resource [1] not found.",
 		code    : 6010,
+		type    : Enums.EventType.ServiceException
+	},
+	private_key_not_found             : {
+		message : "Private key not found.",
+		code    : 6011,
+		type    : Enums.EventType.ServiceException
+	},
+	invalid_auth                      : {
+		message : "Invalid authentication token.",
+		code    : 6012,
+		type    : Enums.EventType.ServiceException
+	},
+	expired_token                     : {
+		message : "Token access expired.",
+		code    : 6013,
 		type    : Enums.EventType.ServiceException
 	}
 };

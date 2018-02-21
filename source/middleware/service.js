@@ -1,6 +1,7 @@
 'use strict';
 
 const utils = require("../common/utils");
+const moment = require("moment");
 const Log = require("../middleware/log");
 const Data = require("../middleware/data");
 const Bundler = require("../middleware/bundler");
@@ -10,6 +11,8 @@ const Action = require("../middleware/action");
 const State = require("../middleware/state");
 const Job = require("../middleware/job");
 const ServiceHelper = require("../middleware/service.helper");
+const exjwt = require('express-jwt');
+const jwt = require('jsonwebtoken');
 
 const path = require("path");
 const fs = require("fs");
@@ -43,6 +46,7 @@ module.exports = function (server, params) {
 
 	_self.name = params.name;
 	_self.key = params.key;
+	_self.domain = params.domain;
 	_self.active = params.active;
 	_self.settings = params.settings;
 	_self.callbacks = params.callbacks || {};
@@ -51,10 +55,10 @@ module.exports = function (server, params) {
 	_self.states = {};
 	_self.jobs = {};
 	_self.clients = [];
-	_self.customContext = {};
+	_self.application = {};
 
 	_self.server = server;
-	_self.locate = new utils.locate(_self.server.paths.root);
+	_self.locate = new utils.locate(_self.server.paths.source);
 	_self.defaults = {
 		states : {
 			exception : null,
@@ -78,20 +82,82 @@ module.exports = function (server, params) {
 	_self.socket = sio(http.createServer(_self.express));
 
 	_self.express.use(cors);
-	_self.express.use(bodyParser.json());
+	_self.express.use(bodyParser.json({limit: '50mb'}));
 	_self.express.use(express.static(_self.locate.path(_self.settings.service.paths.static)));
-	_self.express.use(bodyParser.urlencoded({ extended : true }));
+	_self.express.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+
 	if (_self.settings.service.paths.favicon) {
 		_self.express.use(favicon(_self.locate.path(_self.settings.service.paths.favicon)));
 	}
 
-	_self.express.use(session({
-		name              : _self.settings.service.security ? _self.settings.service.security.session : 'anxeb' || 'anxeb',
-		secret            : _self.settings.service.security ? _self.settings.service.security.secret : '4nx3b' || '4nx3b',
-		store             : _self.settings.service.redis ? new RedisStore(_self.settings.service.redis) : null,
-		resave            : false,
-		saveUninitialized : true
-	}));
+	if (_self.settings.service.security.session) {
+		_self.express.use(session({
+			name              : _self.settings.service.security.session.name || 'anxeb',
+			secret            : _self.settings.service.security.session.secret || '4nx3b',
+			store             : _self.settings.service.redis ? new RedisStore(_self.settings.service.redis) : null,
+			resave            : false,
+			saveUninitialized : true
+		}));
+	}
+
+	if (_self.settings.service.security.keys) {
+		var getKey = function (key) {
+			if (key.indexOf('/') > -1) {
+				return utils.file.read(path.join(_self.server.settings.paths.keys, key));
+			} else {
+				return key;
+			}
+		};
+
+		_self.keys = {
+			secret     : _self.settings.service.security.keys.secret ? getKey(_self.settings.service.security.keys.secret) : null,
+			private    : getKey(_self.settings.service.security.keys.private),
+			public     : getKey(_self.settings.service.security.keys.public),
+			expiration : _self.settings.service.security.keys.expiration,
+			verify     : function (token, callback) {
+				jwt.verify(token, this.public, callback);
+			},
+			decode     : function (token) {
+				try {
+					return jwt.verify(token, this.public);
+				} catch (err) {
+					return null;
+				}
+			}
+		};
+
+		if (_self.keys.secret) {
+			_self.express.use(exjwt({
+				secret              : new Buffer(_self.keys.secret, 'hex'),
+				credentialsRequired : false,
+				resultProperty      : 'bearer'
+			}));
+		}
+	}
+
+	_self.sign = function (body, options) {
+		if (_self.keys.private === undefined) {
+			_self.log.exception.private_key_not_found.throw();
+		}
+
+		if (options === undefined) {
+			options = {};
+		}
+
+		var payload = {
+			alg  : "RS256",
+			typ  : "JWT",
+			iss  : options.iss || _self.domain,
+			exp  : options.exp || moment().add(_self.keys.expiration, 'seconds').valueOf() / 1000,
+			nbf  : options.nbf || moment().add(-1, 'minute').valueOf() / 1000,
+			iat  : options.iat || moment().valueOf() / 1000,
+			body : body
+		};
+
+		return jwt.sign(payload, _self.keys.private, {
+			algorithm : payload.alg
+		});
+	};
 
 	_self.router = express.Router();
 	_self.express.use(_self.router);
@@ -105,7 +171,7 @@ module.exports = function (server, params) {
 		extname     : '.hbs',
 		partialsDir : _self.settings.service.paths.templates ? _self.locate.path(_self.settings.service.paths.templates.partials) : null,
 		layoutsDir  : _self.settings.service.paths.templates ? _self.locate.path(_self.settings.service.paths.templates.containers) : null,
-		onCompile: function(exhbs, source, filename) {
+		onCompile   : function (exhbs, source, filename) {
 			var html = source.replace("{{{view}}}", "<div ui-view>{{{body}}}</div>");
 			return exhbs.handlebars.compile(html);
 		}
@@ -179,7 +245,7 @@ module.exports = function (server, params) {
 	};
 
 	if (params.settings.service.paths.events) {
-		var eventsPath = path.join(_self.server.settings.paths.root, params.settings.service.paths.events);
+		var eventsPath = path.join(_self.server.settings.paths.source, params.settings.service.paths.events);
 
 		utils.file.modules(eventsPath).map(function (events) {
 			_self.log.include(events.module);
@@ -187,7 +253,7 @@ module.exports = function (server, params) {
 	}
 
 	if (params.settings.service.paths.callbacks) {
-		var callbacksPath = path.join(_self.server.settings.paths.root, params.settings.service.paths.callbacks);
+		var callbacksPath = path.join(_self.server.settings.paths.source, params.settings.service.paths.callbacks);
 
 		utils.file.modules(callbacksPath).map(function (callback) {
 			_self.include.callback(callback.name, callback.module);
@@ -195,7 +261,7 @@ module.exports = function (server, params) {
 	}
 
 	if (params.settings.service.paths.states) {
-		var statesPath = path.join(_self.server.settings.paths.root, params.settings.service.paths.states);
+		var statesPath = path.join(_self.server.settings.paths.source, params.settings.service.paths.states);
 
 		utils.file.modules(statesPath).map(function (state) {
 			_self.include.state(state.name, state.module);
@@ -203,7 +269,7 @@ module.exports = function (server, params) {
 	}
 
 	if (params.settings.service.paths.actions) {
-		var actionsPath = path.join(_self.server.settings.paths.root, params.settings.service.paths.actions);
+		var actionsPath = path.join(_self.server.settings.paths.source, params.settings.service.paths.actions);
 
 		utils.file.modules(actionsPath).map(function (action) {
 			_self.include.action(action.name, action.module);
@@ -211,7 +277,7 @@ module.exports = function (server, params) {
 	}
 
 	if (params.settings.service.paths.jobs) {
-		var jobsPath = path.join(_self.server.settings.paths.root, params.settings.service.paths.jobs);
+		var jobsPath = path.join(_self.server.settings.paths.source, params.settings.service.paths.jobs);
 
 		utils.file.modules(jobsPath).map(function (job) {
 			_self.include.job(job.name, job.module);
@@ -301,7 +367,7 @@ module.exports = function (server, params) {
 	};
 
 	if (_self.initialize) {
-		_self.initialize(_self, _self.customContext);
+		_self.initialize(_self, _self.application);
 	}
 
 	Object.defineProperty(_self, "models", {

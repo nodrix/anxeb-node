@@ -9,6 +9,11 @@ module.exports = {
 	Server : Server,
 	Enums  : Enums,
 	Types  : {
-		ObjectId : MongooseTypes.ObjectId
+		ObjectId      : MongooseTypes.ObjectId,
+		Array         : MongooseTypes.Array,
+		Buffer        : MongooseTypes.Buffer,
+		DocumentArray : MongooseTypes.DocumentArray,
+		Decimal128    : MongooseTypes.Decimal128,
+		Mixed         : MongooseTypes.Mixed
 	}
 };

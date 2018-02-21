@@ -39,9 +39,9 @@ const Event = function (params) {
 			if (argIsError) {
 				_self.error = value;
 			} else {
-			  if (value !== undefined) {
-          _self.message = _self.message.replace("[" + i + "]", value.toString());
-        }
+				if (value !== undefined && value !== null) {
+					_self.message = _self.message.replace("[" + i + "]", value.toString());
+				}
 			}
 		}
 

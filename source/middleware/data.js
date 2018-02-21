@@ -20,15 +20,17 @@ module.exports = function (service) {
 
 	_self.include = {
 		model : function (params) {
-			_self.models[params.name] = _self.context.model(params.name, new Schema(params.schema));
+			_self.models[params.name] = _self.context.model(params.name, new Schema(params.schema, {
+				collection : params.collection || params.name
+			}));
 		}
 	};
 
 	var loadModels = function () {
 		if (_service.settings.service.paths.models) {
-			var modelsPath = path.join(_service.server.settings.paths.root, _service.settings.service.paths.models);
+			var modelsPath = path.join(_service.server.settings.paths.source, _service.settings.service.paths.models);
 			utils.file.modules(modelsPath).map(function (model) {
-        model.module.name = model.module.name || model.name.toPascalCase();
+				model.module.name = model.module.name || model.name.toPascalCase();
 				if (!model.module.disabled) {
 					_self.include.model(model.module);
 				}

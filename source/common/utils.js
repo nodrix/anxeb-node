@@ -12,6 +12,10 @@ const utils = {
 		return new URL(url)
 	},
 	file : {
+		read    : function (filePath) {
+			filePath = utils.fillDateParameters(filePath);
+			return fs.readFileSync(filePath)
+		},
 		write   : function (filePath, text) {
 			filePath = utils.fillDateParameters(filePath);
 
@@ -85,7 +89,9 @@ const utils = {
 			result = result.replace("[server_key]", serverParams.key);
 			result = result.replace("[server_logs_path]", serverParams.settings.paths.logs);
 			result = result.replace("[server_root_path]", serverParams.settings.paths.root);
-			result = result.replace("[server_root_path]", serverParams.settings.paths.instances);
+			result = result.replace("[server_source_path]", serverParams.settings.paths.source);
+			result = result.replace("[server_certs_path]", serverParams.settings.paths.certs);
+			result = result.replace("[server_instances_path]", serverParams.settings.paths.instances);
 			return utils.fillCommonParameters(result);
 		};
 

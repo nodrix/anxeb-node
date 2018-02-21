@@ -1,55 +1,57 @@
 {
-  "name" : "anxeb",
-  "version" : "0.1.8",
-  "description" : "Highly scalable NodeJs web application bundle.",
-  "main" : "index.js",
-  "scripts" : {
-	"test" : "echo \"Error: no test specified\" && exit 1"
+  "name": "anxeb",
+  "version": "0.1.9",
+  "description": "Highly scalable NodeJs web application bundle.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository" : {
-	"type" : "git",
-	"url" : "git+https://github.com/nodrix/anxeb.git"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nodrix/anxeb.git"
   },
-  "keywords" : [
-	"mongodb",
-	"expressjs",
-	"nodejs",
-	"angularjs",
-	"javascript",
-	"web",
-	"mongoose",
-	"schedule",
-	"socket.io",
-	"handlebars",
-	"smart"
+  "keywords": [
+    "mongodb",
+    "expressjs",
+    "nodejs",
+    "angularjs",
+    "javascript",
+    "web",
+    "mongoose",
+    "schedule",
+    "socket.io",
+    "handlebars",
+    "smart"
   ],
-  "author" : "Eduardo Rosario <erosario@nodrix.com> (http://nodrix.com)",
-  "license" : "MIT",
-  "bugs" : {
-	"url" : "https://github.com/nodrix/anxeb/issues"
+  "author": "Eduardo Rosario <erosario@nodrix.com> (http://nodrix.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nodrix/anxeb/issues"
   },
-  "homepage" : "https://github.com/nodrix/anxeb#readme",
-  "dependencies" : {
-	"async" : "^2.5.0",
-	"bluebird" : "^3.5.0",
-	"body-parser" : "^1.18.0",
-	"cli-color" : "^1.2.0",
-	"connect-redis" : "^3.3.0",
-	"cors" : "^2.8.4",
-	"express" : "^4.15.4",
-	"express-hbs" : "^1.0.4",
-	"express-session" : "^1.15.5",
-	"fs" : "0.0.1-security",
-	"handlebars" : "^4.0.10",
-	"http" : "0.0.0",
-	"https" : "^1.0.0",
-	"mkpath" : "^1.0.0",
-	"moment" : "^2.18.1",
-	"mongoose" : "^4.11.10",
-	"node-schedule" : "^1.2.5",
-	"path" : "^0.12.7",
-	"serve-favicon" : "^2.4.3",
-	"socket.io" : "^2.0.3",
-	"url-parse" : "^1.1.9"
+  "homepage": "https://github.com/nodrix/anxeb#readme",
+  "dependencies": {
+    "async": "^2.5.0",
+    "bluebird": "^3.5.0",
+    "body-parser": "^1.18.0",
+    "cli-color": "^1.2.0",
+    "connect-redis": "^3.3.0",
+    "cors": "^2.8.4",
+    "express": "^4.15.4",
+    "express-hbs": "^1.0.4",
+    "express-jwt": "^5.3.0",
+    "express-session": "^1.15.5",
+    "fs": "0.0.1-security",
+    "handlebars": "^4.0.10",
+    "http": "0.0.0",
+    "https": "^1.0.0",
+    "jsonwebtoken": "^8.1.1",
+    "mkpath": "^1.0.0",
+    "moment": "^2.18.1",
+    "mongoose": "^4.11.10",
+    "node-schedule": "^1.2.5",
+    "path": "^0.12.7",
+    "serve-favicon": "^2.4.3",
+    "socket.io": "^2.0.3",
+    "url-parse": "^1.1.9"
   }
 }

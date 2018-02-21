@@ -8,3 +8,4 @@ Highly scalable NodeJs web application framework.
 - HandlebarsJS
 - Node Schedule
 - CLI Color Debugger
+- JWT Integration

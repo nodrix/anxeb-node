@@ -22,6 +22,7 @@ module.exports = {
 		MissParameterError : "MissParameterError",
 		Debug              : "Debug",
 		InformationAlert   : "InformationAlert",
-		ExclamationAlert   : "ExclamationAlert"
+		ExclamationAlert   : "ExclamationAlert",
+		UserException      : "UserException"
 	}
 };
