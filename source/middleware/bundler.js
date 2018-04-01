@@ -72,7 +72,7 @@ module.exports = function (service) {
 	};
 
 	_self.all = function () {
-		return getInit() + "\n" + getVendors() + "\n" + getMiddleware() + "\n" + getControllers();
+		return getVendors() + "\n" + getInit() + "\n" + getMiddleware() + "\n" + getControllers();
 	};
 
 	_self.anxeb = function () {

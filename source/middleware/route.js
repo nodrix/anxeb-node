@@ -9,31 +9,33 @@ module.exports = function (params, type) {
 	_self.dispatch = {};
 
 	var checkIdentity = function (req, res, next) {
-		if (_self.service.keys) {
-			if (res.bearer && res.bearer.client) {
-				if (params.access === Enums.RouteAccess.Private) {
-					_self.service.keys.verify(res.bearer.token, function (err, auth) {
-						if (err) {
-							if (err.message === 'jwt expired') {
-								_self.service.log.exception.expired_token.throw();
+		if (params.access !== Enums.RouteAccess.Public) {
+			if (_self.service.keys) {
+				if (res.bearer && res.bearer.client) {
+					if (params.access === Enums.RouteAccess.Private) {
+						_self.service.keys.verify(res.bearer.token, function (err, auth) {
+							if (err) {
+								if (err.message === 'jwt expired') {
+									_self.service.log.exception.expired_token.throw();
+								} else {
+									_self.service.log.exception.invalid_auth.args(err).throw();
+								}
 							} else {
-								_self.service.log.exception.invalid_auth.args(err).throw();
-							}
-						} else {
-							if (auth.body.access) {
-								if (auth.body.access.indexOf(params.path) < 0) {
-									_self.service.log.exception.unauthorized_access.throw();
+								if (auth.body.access) {
+									if (auth.body.access.indexOf(params.path) < 0) {
+										_self.service.log.exception.unauthorized_access.throw();
+									}
 								}
 							}
-						}
-					});
+						});
+					}
+				} else {
+					_self.service.log.exception.invalid_token.throw();
 				}
 			} else {
-				_self.service.log.exception.invalid_token.throw();
-			}
-		} else {
-			if (params.access === Enums.RouteAccess.Private && !req.session.identity) {
-				_self.service.log.exception.unauthorized_access.throw();
+				if (params.access === Enums.RouteAccess.Private && !req.session.identity) {
+					_self.service.log.exception.unauthorized_access.throw();
+				}
 			}
 		}
 
@@ -63,7 +65,7 @@ module.exports = function (params, type) {
 			preMethodConfig(req, res);
 
 			var bearer = res.bearer;
-			if (bearer.token) {
+			if (bearer && bearer.token) {
 				bearer.auth = _self.service.keys.decode(bearer.token);
 			}
 			method({

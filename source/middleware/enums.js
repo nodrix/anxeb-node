@@ -2,8 +2,9 @@
 
 module.exports = {
 	RouteAccess : {
-		Private : "Private",
-		Public  : "Public"
+		Private   : "Private",
+		Protected : "Protected",
+		Public    : "Public"
 	},
 	RouteType   : {
 		Action : "Action",

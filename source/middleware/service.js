@@ -66,6 +66,16 @@ module.exports = function (server, params) {
 		}
 	};
 
+	_self.
+		storage = {
+		save  : function (filePath, text) {
+			utils.file.write(path.join(_self.server.settings.paths.storage, filePath), text, true);
+		},
+		fetch : function (filePath, callback) {
+			utils.file.fetch(path.join(_self.server.settings.paths.storage, filePath), callback);
+		}
+	};
+
 	params.settings.log.debug = params.settings.log.debug !== undefined ? params.settings.log.debug : (_self.settings.debug !== undefined ? _self.settings.debug : (_self.server.settings.debug !== undefined ? _self.server.settings.debug : false));
 
 	_self.log.start({
@@ -82,9 +92,9 @@ module.exports = function (server, params) {
 	_self.socket = sio(http.createServer(_self.express));
 
 	_self.express.use(cors);
-	_self.express.use(bodyParser.json({limit: '50mb'}));
+	_self.express.use(bodyParser.json({ limit : '50mb' }));
 	_self.express.use(express.static(_self.locate.path(_self.settings.service.paths.static)));
-	_self.express.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+	_self.express.use(bodyParser.urlencoded({ limit : '50mb', extended : true }));
 
 	if (_self.settings.service.paths.favicon) {
 		_self.express.use(favicon(_self.locate.path(_self.settings.service.paths.favicon)));
@@ -321,7 +331,7 @@ module.exports = function (server, params) {
 		Handlebars.registerPartial('anxeb.all', _self.bundler.all());
 		Handlebars.registerPartial('anxeb.init', _self.bundler.init());
 		Handlebars.registerPartial('anxeb.middleware', _self.bundler.middleware());
-		Handlebars.registerPartial('anxeb.vendors', _self.bundler.vendors());
+		Handlebars.registerPartial('bundle', _self.bundler.vendors());
 		Handlebars.registerPartial('anxeb.controllers', _self.bundler.controllers());
 
 		Handlebars.registerHelper('part', function (name) {

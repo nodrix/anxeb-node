@@ -8,20 +8,28 @@ const mkpath = require("mkpath");
 const URL = require("url-parse");
 
 const utils = {
-	url  : function (url) {
+	url                  : function (url) {
 		return new URL(url)
 	},
-	file : {
+	file                 : {
+		fetch   : function (filePath, callback) {
+			filePath = utils.fillDateParameters(filePath);
+			return fs.readFile(filePath, 'utf8', callback);
+		},
 		read    : function (filePath) {
 			filePath = utils.fillDateParameters(filePath);
 			return fs.readFileSync(filePath)
 		},
-		write   : function (filePath, text) {
+		write   : function (filePath, text, replace) {
 			filePath = utils.fillDateParameters(filePath);
 
 			var doAppend = function (canCreateDirectory) {
 				try {
-					fs.appendFileSync(filePath, text);
+					if (replace) {
+						fs.writeFileSync(filePath, text);
+					} else {
+						fs.appendFileSync(filePath, text);
+					}
 				} catch (err) {
 					if (err.code === "ENOENT" && canCreateDirectory) {
 						createDir(path.dirname(filePath));
@@ -127,7 +135,7 @@ const utils = {
 			return result;
 		};
 	},
-	getMainStack   : function (stackString, prefix) {
+	getMainStack         : function (stackString, prefix) {
 		var lines = stackString.split("\n");
 		var lastLine = null;
 
@@ -163,7 +171,7 @@ const utils = {
 		}
 		return lastLine;
 	},
-	getClientError : function (err, debug) {
+	getClientError       : function (err, debug) {
 		var result = {
 			message : err.message,
 			code    : err.event !== undefined ? err.event.code : 0,

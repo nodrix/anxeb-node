@@ -3,6 +3,14 @@
 anxeb.app.service("page", function ($state, $location, $stateParams) {
 	var _self = this;
 	$state.defaultErrorHandler(function () { });
+
+	_self.load = function (state, params) {
+		return $state.go(state, params, {
+			reload : false,
+			cache  : false
+		});
+	};
+
 	_self.redirect = function (state, params) {
 		return $state.go(state, params, {
 			reload : true,
