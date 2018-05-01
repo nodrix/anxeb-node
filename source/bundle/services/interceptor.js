@@ -1,11 +1,13 @@
 'use strict';
 
-anxeb.app.service('Interceptor', ['$rootScope', '$q', '$injector', function ($rootScope, $q, $injector) {
+anxeb.app.service('interceptor', ['$rootScope', '$q', '$injector', function ($rootScope, $q, $injector, session) {
 	var _self = this;
 	var _identified = false;
 	_self.cache = {
 		private : []
 	};
+
+	_self.headers = {};
 
 	_self.response = function (response) {
 		if (response.headers("routeAccess") === anxeb.Enums.RouteAccess.Private) {
@@ -30,6 +32,10 @@ anxeb.app.service('Interceptor', ['$rootScope', '$q', '$injector', function ($ro
 			}
 		}
 		request.headers.source = "Client";
+
+		for (var h in _self.headers) {
+			request.headers[h] = _self.headers[h];
+		}
 		return request;
 	};
 

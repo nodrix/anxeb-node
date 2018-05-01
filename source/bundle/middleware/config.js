@@ -4,7 +4,7 @@ anxeb.app = angular.module("app", anxeb.modules).config(function ($interpolatePr
 	$interpolateProvider.startSymbol(anxeb.settings && anxeb.settings.startSymbol ? anxeb.settings.startSymbol : '[[');
 	$interpolateProvider.endSymbol(anxeb.settings && anxeb.settings.endSymbol ? anxeb.settings.endSymbol : ']]');
 	$locationProvider.html5Mode(anxeb.settings ? anxeb.settings.html5Mode : true);
-	$httpProvider.interceptors.push("Interceptor");
+	$httpProvider.interceptors.push("interceptor");
 });
 
 anxeb.controller = function (name) {

@@ -59,22 +59,44 @@ module.exports = {
 					}
 				}
 
-				if (!isPublicContainer && !req.session.identity) {
-					service.log.exception.unauthorized_access.throw();
-				}
+				var completeRequest = function () {
+					var fullPath = service.locate.path(service.settings.service.paths.templates.containers, requestContainer) + ".hbs";
 
-				var fullPath = service.locate.path(service.settings.service.paths.templates.containers, requestContainer) + ".hbs";
+					if (utils.file.exists(fullPath)) {
+						res.set("routeAccess", isPublicContainer ? Enums.RouteAccess.Public : Enums.RouteAccess.Private);
 
-				if (utils.file.exists(fullPath)) {
-					res.set("routeAccess", isPublicContainer ? Enums.RouteAccess.Public : Enums.RouteAccess.Private);
-
-					if (req.query.full && req.query.full.isTrue()) {
-						res.render(fullPath);
+						if (req.query.full && req.query.full.isTrue()) {
+							res.render(fullPath);
+						} else {
+							res.render(fullPath, { layout : null });
+						}
 					} else {
-						res.render(fullPath, { layout : null });
+						service.log.exception.file_not_found.args(fullPath).throw();
 					}
+				};
+
+				if (!isPublicContainer && !req.session.identity && res.bearer.token) {
+					service.keys.verify(res.bearer.token, function (err, auth) {
+						if (err) {
+							if (err.message === 'jwt expired') {
+								_self.service.log.exception.expired_token.throw();
+							} else {
+								_self.service.log.exception.invalid_auth.args(err).throw();
+							}
+						} else {
+							if (auth.body.access !== null) {
+								if (auth.body.access.indexOf("/" + requestContainer) < 0) {
+									_self.service.log.exception.unauthorized_access.throw();
+								} else {
+									completeRequest();
+								}
+							} else {
+								completeRequest();
+							}
+						}
+					});
 				} else {
-					service.log.exception.file_not_found.args(fullPath).throw();
+					completeRequest();
 				}
 			}
 		)

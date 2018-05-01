@@ -38,6 +38,11 @@ const Event = function (params) {
 
 			if (argIsError) {
 				_self.error = value;
+				if (_self.error.message) {
+					_self.message = _self.message.replace("[inner]", value.message);
+				} else {
+					_self.message = _self.message.replace("[inner]", '');
+				}
 			} else {
 				if (value !== undefined && value !== null) {
 					_self.message = _self.message.replace("[" + i + "]", value.toString());

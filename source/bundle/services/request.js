@@ -110,6 +110,13 @@ anxeb.app.service("request", function ($http, $rootScope) {
 				return;
 			}
 
+			if (_request.options.bearer) {
+				if (!_request.headers) {
+					_request.headers = {};
+				}
+				_request.headers["Authorization"] = "Bearer " + _request.options.bearer
+			}
+
 			$http({
 				method  : _request.method,
 				url     : _request.url,
@@ -166,6 +173,15 @@ anxeb.app.service("request", function ($http, $rootScope) {
 			return request;
 		};
 
+	};
+
+	_self.method = function (method, url, params, headers) {
+		return new push({
+			method  : method,
+			url     : url,
+			headers : headers,
+			data    : params
+		});
 	};
 
 	_self.post = function (url, params, headers) {

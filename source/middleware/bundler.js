@@ -9,17 +9,6 @@ module.exports = function (service) {
 	var _service = service;
 	_self.compute = new ComputedBundler(_service);
 
-	var getVendors = function () {
-		var result = ["<!-- Dependency Vendors -->"];
-		result.push('<script src="/anxeb/bundle/vendors/angular/angular.min.js"></script>');
-		result.push('<script src="/anxeb/bundle/vendors/angular/angular-animate.min.js"></script>');
-		result.push('<script src="/anxeb/bundle/vendors/angular/angular-storage.min.js"></script>');
-		result.push('<script src="/anxeb/bundle/vendors/angular/angular-ui-router.min.js"></script>');
-		result.push('<script src="/anxeb/bundle/vendors/jquery/jquery.min.js"></script>');
-		result.push('<script src="/anxeb/bundle/vendors/socket/socket.io.min.js"></script>');
-		return result.join("\n") + "\n";
-	};
-
 	var getControllers = function () {
 		var result = ["<!-- Client Controllers -->"];
 
@@ -48,13 +37,16 @@ module.exports = function (service) {
 		result.push('<script src="/anxeb/bundle/middleware/utils.js"></script>');
 		result.push('<script src="/anxeb/bundle/middleware/enums.js"></script>');
 		result.push('<script src="/anxeb/bundle/middleware/event.js"></script>');
+
 		result.push('<script src="/anxeb/bundle/services/page.js"></script>');
 		result.push('<script src="/anxeb/bundle/services/request.js"></script>');
 		result.push('<script src="/anxeb/bundle/services/session.js"></script>');
 		result.push('<script src="/anxeb/bundle/services/interceptor.js"></script>');
 		result.push('<script src="/anxeb/bundle/services/socket.js"></script>');
+
 		result.push('<script src="/anxeb/bundle/directives/ng-enter.js"></script>');
-		result.push('<script src="/anxeb/bundle/directives/focusMe.js"></script>');
+		result.push('<script src="/anxeb/bundle/directives/ng-focus.js"></script>');
+		result.push('<script src="/anxeb/bundle/directives/ng-script.js"></script>');
 		result.push('<script src="/anxeb/bundle/middleware/global.js"></script>');
 		result.push('<script src="/anxeb/bundle/computed/states.js"></script>');
 
@@ -71,20 +63,12 @@ module.exports = function (service) {
 		return null;
 	};
 
-	_self.all = function () {
-		return getVendors() + "\n" + getInit() + "\n" + getMiddleware() + "\n" + getControllers();
-	};
-
 	_self.anxeb = function () {
 		return getInit() + "\n" + getMiddleware() + "\n" + getControllers();
 	};
 
 	_self.init = function () {
 		return getInit();
-	};
-
-	_self.vendors = function () {
-		return getVendors();
 	};
 
 	_self.middleware = function () {

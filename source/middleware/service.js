@@ -66,8 +66,7 @@ module.exports = function (server, params) {
 		}
 	};
 
-	_self.
-		storage = {
+	_self.storage = {
 		save  : function (filePath, text) {
 			utils.file.write(path.join(_self.server.settings.paths.storage, filePath), text, true);
 		},
@@ -313,7 +312,12 @@ module.exports = function (server, params) {
 
 			if (isClient) {
 				res.json(response);
-			} else if (err.event.code === _self.log.exception.unauthorized_access.code && _self.defaults.states.login) {
+			} else if (_self.defaults.states.login && (
+					err.event.code === _self.log.exception.unauthorized_access.code ||
+					err.event.code === _self.log.exception.invalid_auth.code ||
+					err.event.code === _self.log.exception.expired_token.code ||
+					err.event.code === _self.log.exception.invalid_token.code)
+			) {
 				res.redirect(_self.defaults.states.login.path);
 			} else {
 				if (_self.defaults.states.exception !== null) {
@@ -328,10 +332,8 @@ module.exports = function (server, params) {
 
 	_self.start = function () {
 		Handlebars.registerPartial('anxeb', _self.bundler.anxeb());
-		Handlebars.registerPartial('anxeb.all', _self.bundler.all());
 		Handlebars.registerPartial('anxeb.init', _self.bundler.init());
 		Handlebars.registerPartial('anxeb.middleware', _self.bundler.middleware());
-		Handlebars.registerPartial('bundle', _self.bundler.vendors());
 		Handlebars.registerPartial('anxeb.controllers', _self.bundler.controllers());
 
 		Handlebars.registerHelper('part', function (name) {
