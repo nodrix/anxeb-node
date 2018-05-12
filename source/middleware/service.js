@@ -48,6 +48,7 @@ module.exports = function (server, params) {
 	_self.key = params.key;
 	_self.domain = params.domain;
 	_self.active = params.active;
+	_self.configuration = params.configuration;
 	_self.settings = params.settings;
 	_self.callbacks = params.callbacks || {};
 	_self.initialize = params.initialize;

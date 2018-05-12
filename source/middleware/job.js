@@ -5,6 +5,7 @@ module.exports = function (service, params) {
 	var _service = service;
 
 	_self.name = params.name;
+	_self.interval = null;
 	_self.schedule = params.schedule || '* * * * * *';
 	_self.task = params.task;
 	_self.startTime = params.startTime;
@@ -13,22 +14,42 @@ module.exports = function (service, params) {
 	_self.state = {};
 
 	_self.start = function () {
-		_self.instance = _service.schedule.scheduleJob({
-			start : _self.startTime,
-			end   : _self.endTime,
-			rule  : _self.rule
-		}, function () {
-			_self.task({ service: _service, job: _self, socket: _service.socket});
-		});
+		if (_self.interval) {
+			_self.instance = setInterval(function () {
+				_self.task({
+					service     : _service,
+					job         : _self,
+					socket      : _service.socket,
+					application : _service.application
+				});
+			}, _self.interval);
+		} else {
+			_self.instance = _service.schedule.scheduleJob({
+				start : _self.startTime,
+				end   : _self.endTime,
+				rule  : _self.rule
+			}, function () {
+				_self.task({
+					service     : _service,
+					job         : _self,
+					socket      : _service.socket,
+					application : _service.application
+				});
+			});
+		}
 	};
 
 	_self.cancel = function () {
 		if (_self.instance) {
-			_self.instance.cancel();
+			if (_self.interval) {
+				clearInterval(_self.instance);
+			} else {
+				_self.instance.cancel();
+			}
 		}
 	};
 
 	_self.execute = function () {
-		_self.task({ service: _service, job: _self, socket: _service.socket});
+		_self.task({ service : _service, job : _self, socket : _service.socket });
 	};
 };
