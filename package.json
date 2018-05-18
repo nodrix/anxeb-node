@@ -1,6 +1,6 @@
 {
   "name": "anxeb",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Highly scalable NodeJs web application bundle.",
   "main": "index.js",
   "scripts": {
@@ -50,6 +50,7 @@
     "mongoose": "^4.11.10",
     "node-schedule": "^1.2.5",
     "path": "^0.12.7",
+    "request": "^2.86.0",
     "serve-favicon": "^2.4.3",
     "socket.io": "^2.0.3",
     "url-parse": "^1.1.9",

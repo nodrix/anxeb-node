@@ -63,13 +63,20 @@ module.exports = function (service) {
 		}
 	});
 
-	_self.connect = function () {
+	_self.connect = function (callback) {
 		if (_self.connected) {
-			return;
+			if (callback) {
+				callback();
+			}
+		} else {
+			_self.context.openUri(_settings.uri, _settings.options).then(function () {
+				if (callback) {
+					callback();
+				}
+			}).catch(function (err) {
+				_service.log.exception.data_server_connection_failed.args(_settings.uri, err).throw();
+			});
 		}
-		_self.context.openUri(_settings.uri, _settings.options).catch(function (err) {
-			_service.log.exception.data_server_connection_failed.args(_settings.uri, err).throw();
-		});
 	};
 
 	loadModels();

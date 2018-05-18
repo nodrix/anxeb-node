@@ -21,6 +21,9 @@ module.exports = function (service) {
 				result.push('\t\t.state("' + _state.link + '", { ');
 				result.push('\t\t\tcache: false,');
 				result.push('\t\t\turl: "' + _state.url + '",');
+				if (_state.data) {
+					result.push('\t\t\tdata: ' + JSON.stringify(_state.data) + ',');
+				}
 				if (_state.controller) {
 					result.push('\t\t\tcontroller: "' + _state.controller.toPascalCase() + 'Controller",');
 				}
@@ -81,8 +84,8 @@ module.exports = function (service) {
 
 			if (_service.settings.service.client && _service.settings.service.client && _service.settings.service.client.modules && _service.settings.service.client.modules.length > 0) {
 				modules = '[' + _service.settings.service.client.modules.map(function (item) {
-						return '"' + item + '"';
-					}).join(',') + ']';
+					return '"' + item + '"';
+				}).join(',') + ']';
 			}
 
 			var result = [];

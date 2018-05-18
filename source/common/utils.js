@@ -8,12 +8,16 @@ const mkpath = require("mkpath");
 const URL = require("url-parse");
 
 const utils = {
+	copy              : function (obj) {
+		return JSON.parse(JSON.stringify(obj));
+	},
 	url                  : function (url) {
 		return new URL(url)
 	},
 	file                 : {
 		fetch   : function (filePath, callback) {
 			filePath = utils.fillDateParameters(filePath);
+
 			return fs.readFile(filePath, 'utf8', callback);
 		},
 		read    : function (filePath) {
@@ -55,17 +59,21 @@ const utils = {
 			doAppend(true);
 		},
 		modules : function (modulesPath) {
-			var files = fs.readdirSync(modulesPath);
+			if (fs.existsSync(modulesPath)) {
+				var files = fs.readdirSync(modulesPath);
 
-			return files.filter(function (file) {
-				return file.endsWith(".js");
-			}).map(function (script) {
-				var modulePath = path.join(modulesPath, script);
-				return {
-					module : require(modulePath),
-					name   : script.replace(".js", "")
-				}
-			});
+				return files.filter(function (file) {
+					return file.endsWith(".js");
+				}).map(function (script) {
+					var modulePath = path.join(modulesPath, script);
+					return {
+						module : require(modulePath),
+						name   : script.replace(".js", "")
+					}
+				});
+			} else {
+				return [];
+			}
 		},
 		list    : function (params) {
 			var allFiles = fs.readdirSync(params.path);

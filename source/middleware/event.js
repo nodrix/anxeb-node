@@ -46,6 +46,11 @@ const Event = function (params) {
 			} else {
 				if (value !== undefined && value !== null) {
 					_self.message = _self.message.replace("[" + i + "]", value.toString());
+					_self.message = _self.message.replace("[R" + i + "]", clc.redBright(value.toString()));
+					_self.message = _self.message.replace("[Y" + i + "]", clc.yellowBright(value.toString()));
+					_self.message = _self.message.replace("[B" + i + "]", clc.blueBright(value.toString()));
+					_self.message = _self.message.replace("[W" + i + "]", clc.whiteBright(value.toString()));
+					_self.message = _self.message.replace("[M" + i + "]", clc.cyanBright(value.toString()));
 				}
 			}
 		}

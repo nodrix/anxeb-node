@@ -79,9 +79,9 @@ module.exports = function (firstLog) {
 		init(_self.exception);
 	};
 
-	_self.alert = require("../common/alerts");
-	_self.debug = require("../common/debugs");
-	_self.exception = require("../common/exceptions");
+	_self.alert = JSON.parse(JSON.stringify(require("../common/alerts")));
+	_self.debug = JSON.parse(JSON.stringify(require("../common/debugs")));
+	_self.exception = JSON.parse(JSON.stringify(require("../common/exceptions")));
 
 	_self.start({
 		identifier : "Anxeb",

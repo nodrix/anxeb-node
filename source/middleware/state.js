@@ -23,6 +23,7 @@ const State = function (service, params, parent) {
 	_self.type = params.type || (parent ? parent.type : Enums.StateType.Default);
 	_self.access = params.access || (parent ? parent.access : Enums.RouteAccess.Public);
 	_self.timeout = params.timeout || (parent ? parent.timeout : 5000);
+	_self.data = params.data || (parent ? parent.data : null);
 
 	_self.route = new Route(_self, Enums.RouteType.State);
 	_self.dispatch = _self.route.dispatch;

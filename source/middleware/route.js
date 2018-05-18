@@ -109,6 +109,9 @@ module.exports = function (params, type) {
 				ok          : function () {
 					this.send();
 				},
+				invalid     : function () {
+					_self.service.log.exception.invalid_request.throw(this);
+				},
 				redirect    : function (page) {
 					res.redirect(page);
 				},

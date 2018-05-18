@@ -28,9 +28,11 @@ const hbs = require('express-hbs');
 const Handlebars = require('handlebars');
 const sio = require("socket.io");
 const schedule = require("node-schedule");
+const request = require('request');
 
 module.exports = function (server, params) {
 	var _self = this;
+	var _defaultConfiguration = {};
 
 	_self.log = new Log();
 
@@ -331,7 +333,7 @@ module.exports = function (server, params) {
 		}
 	};
 
-	_self.start = function () {
+	_self.start = function (callback) {
 		Handlebars.registerPartial('anxeb', _self.bundler.anxeb());
 		Handlebars.registerPartial('anxeb.init', _self.bundler.init());
 		Handlebars.registerPartial('anxeb.middleware', _self.bundler.middleware());
@@ -361,27 +363,74 @@ module.exports = function (server, params) {
 			}
 		};
 
-		var beginListening = function () {
-			_self.log.debug.service_instance_starting.args(_self.settings.service.host, _self.settings.service.port).print();
+		var beginListening = function (callback) {
+			console.log('');
+			_self.log.debug.service_instance_starting.args(_self.key, _self.settings.service.host, _self.settings.service.port).print();
 
 			_self.socket.httpServer.listen(_self.settings.service.port, _self.settings.service.host, function () {
-				_self.log.debug.service_instance_started.args(_self.settings.service.host, _self.settings.service.port).print();
+				_self.log.debug.service_instance_started.args((_self.settings.service.protocol ? _self.settings.service.protocol : 'http') + '://' + _self.settings.service.host + ':' + _self.settings.service.port).print();
 				if (_self.data) {
-					_self.data.connect();
+					_self.data.connect(function () {
+						startJobs();
+						if (callback) {
+							callback();
+						}
+					});
+				} else {
+					startJobs();
+					if (callback) {
+						callback();
+					}
 				}
-				startJobs();
 			}).on('error', function (err) {
 				setTimeout(beginListening, 2000);
 				_self.log.exception.http_server_initialization_failed.args(_self.settings.service.host, _self.settings.service.port, err).throw();
 			});
 		};
 
-		beginListening();
+		var setupConfiguration = function () {
+			_self.configuration.save = function () {
+				_self.storage.save(configFileName, JSON.stringify(_self.configuration));
+			};
+
+			_self.configuration.reset = function () {
+				_self.configuration = utils.copy(_defaultConfiguration);
+				_self.storage.save(configFileName, JSON.stringify(_self.configuration));
+				setupConfiguration();
+			};
+		};
+
+		var init = function () {
+			beginListening(function () {
+				_self.log.debug.service_initialized.args(_self.key).print();
+
+				if (_self.initialize) {
+					_self.initialize(_self, _self.application);
+				}
+				if (callback) {
+					callback();
+				}
+			});
+			setupConfiguration();
+		};
+
+		if (_self.configuration) {
+			_defaultConfiguration = utils.copy(params.configuration);
+			var configFileName = path.join('config', _self.key + '.json');
+			_self.storage.fetch(configFileName, function (err, data) {
+				if (_self.configuration.overwrite || err) {
+					_self.storage.save(configFileName, JSON.stringify(_self.configuration));
+				} else {
+					_self.configuration = JSON.parse(data);
+				}
+				init();
+			});
+		} else {
+			init();
+		}
 	};
 
-	if (_self.initialize) {
-		_self.initialize(_self, _self.application);
-	}
+	_self.request = request;
 
 	Object.defineProperty(_self, "models", {
 		get : function () {

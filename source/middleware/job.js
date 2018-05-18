@@ -5,12 +5,14 @@ module.exports = function (service, params) {
 	var _service = service;
 
 	_self.name = params.name;
-	_self.interval = null;
+	_self.interval = params.interval;
 	_self.schedule = params.schedule || '* * * * * *';
 	_self.task = params.task;
 	_self.startTime = params.startTime;
 	_self.endTime = params.endTime;
-	_self.rule = typeof _self.schedule === 'string' || _self.schedule instanceof String ? _self.schedule : _service.schedule.RecurrenceRule(_self.schedule);
+	if (!_self.interval) {
+		_self.rule = typeof _self.schedule === 'string' || _self.schedule instanceof String ? _self.schedule : _service.schedule.RecurrenceRule(_self.schedule);
+	}
 	_self.state = {};
 
 	_self.start = function () {
