@@ -16,6 +16,8 @@ module.exports = function (firstLog) {
 				message : this.message,
 				code    : this.code,
 				type    : this.type,
+				color   : this.color,
+				style   : this.style,
 				log     : _self
 			});
 		};

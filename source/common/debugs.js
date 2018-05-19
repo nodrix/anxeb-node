@@ -38,5 +38,10 @@ module.exports = {
 	redirect_to                : {
 		message : "Redirecting to [0]",
 		type    : Enums.EventType.Debug
+	},
+	config_overwrite_warning   : {
+		message : "Warning: Configuration is in overwrite mode!",
+		type    : Enums.EventType.Debug,
+		color   : 'bgRedBright'
 	}
 };

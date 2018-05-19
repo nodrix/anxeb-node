@@ -14,6 +14,7 @@ const Event = function (params) {
 	_self.code = null;
 	_self.type = null;
 	_self.error = null;
+	_self.color = null;
 
 	if (typeof(params) === "string") {
 		_self.message = utils.fillDateParameters(params);
@@ -21,6 +22,8 @@ const Event = function (params) {
 		_self.message = utils.fillDateParameters(params.message);
 		_self.code = params.code;
 		_self.type = params.type;
+		_self.color = params.color || (_self.type === Enums.EventType.Debug ? 'green' : 'redBright');
+		_self.style = params.style || 'strike';
 		_log = params.log;
 
 		if (_log.identifier) {
@@ -51,6 +54,7 @@ const Event = function (params) {
 					_self.message = _self.message.replace("[B" + i + "]", clc.blueBright(value.toString()));
 					_self.message = _self.message.replace("[W" + i + "]", clc.whiteBright(value.toString()));
 					_self.message = _self.message.replace("[M" + i + "]", clc.cyanBright(value.toString()));
+					_self.message = _self.message.replace("[X" + i + "]", value.toString(16).toUpperCase());
 				}
 			}
 		}
@@ -68,7 +72,7 @@ const Event = function (params) {
 		var inner = _self.error && _self.error.event !== this ? _self.error : null;
 
 		if (_self.type === Enums.EventType.Debug) {
-			clcText += clc.whiteBright(_self.title) + " > " + clc.green(_self.message);
+			clcText += clc.whiteBright(_self.title) + " > " + clc[_self.color][_self.style](_self.message);
 			logText += _self.title + " > " + _self.message + "\n";
 		} else {
 			if (!_self.stack) {
@@ -78,9 +82,10 @@ const Event = function (params) {
 					_self.stack = x.stack;
 				}
 			}
+
 			var stack = _debug && _self.stack ? utils.getMainStack(_self.stack, "\n") + (inner ? "" : "\n") : "";
 
-			var logHeader = clc.whiteBright(_self.title + " > ") + clc.redBright("Error Code " + _self.code.toString().padStart(4, '0') + " / " + _self.message) + stack;
+			var logHeader = clc.whiteBright(_self.title + " > ") + clc[_self.color][_self.style]("Error Code " + _self.code.toString().padStart(4, '0') + " / " + _self.message) + stack;
 			clcText += logHeader;
 			logText += logHeader + "\n";
 		}

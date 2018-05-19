@@ -402,6 +402,9 @@ module.exports = function (server, params) {
 
 		var init = function () {
 			beginListening(function () {
+				if (_defaultConfiguration && _defaultConfiguration.overwrite) {
+					_self.log.debug.config_overwrite_warning.print();
+				}
 				_self.log.debug.service_initialized.args(_self.key).print();
 
 				if (_self.initialize) {
@@ -418,7 +421,7 @@ module.exports = function (server, params) {
 			_defaultConfiguration = utils.copy(params.configuration);
 			var configFileName = path.join('config', _self.key + '.json');
 			_self.storage.fetch(configFileName, function (err, data) {
-				if (_self.configuration.overwrite || err) {
+				if (_defaultConfiguration.overwrite || err) {
 					_self.storage.save(configFileName, JSON.stringify(_self.configuration));
 				} else {
 					_self.configuration = JSON.parse(data);
