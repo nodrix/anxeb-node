@@ -8,8 +8,55 @@ const mkpath = require("mkpath");
 const URL = require("url-parse");
 
 const utils = {
-	copy              : function (obj) {
-		return JSON.parse(JSON.stringify(obj));
+	data                 : {
+		populate : function (obj, source) {
+			var model = obj._doc || obj;
+			for (var i in model) {
+				if (source[i] !== undefined && i !== '_id') {
+					obj[i] = source[i];
+				}
+			}
+		},
+		parse    : {
+			error : function (err, inner) {
+				if (err && err.name === 'ValidationError') {
+					var fields = [];
+					var message = '';
+
+					for (var field in err.errors) {
+
+						var item = err.errors[field];
+						var fName = item.message;
+
+						var inx = fName.indexOf('/');
+						if (inx > -1) {
+							var index = parseInt(fName.substring(0, inx));
+							fName = fName.substring(inx + 1);
+							fields.push({
+								name  : field,
+								index : index
+							});
+						} else {
+							fields.push({
+								name  : fName,
+								index : -1
+							});
+						}
+						message += (message.length ? ', ' : '') + fName;
+					}
+
+					err = inner.args(message).toError({ meta : { fields : fields } });
+				}
+				return err;
+			}
+		}
+	},
+	copy                 : function (obj) {
+		if (obj) {
+			return JSON.parse(JSON.stringify(obj));
+		} else {
+			return null;
+		}
 	},
 	url                  : function (url) {
 		return new URL(url)
@@ -60,6 +107,7 @@ const utils = {
 		},
 		modules : function (modulesPath) {
 			if (fs.existsSync(modulesPath)) {
+
 				var files = fs.readdirSync(modulesPath);
 
 				return files.filter(function (file) {
@@ -144,6 +192,9 @@ const utils = {
 		};
 	},
 	getMainStack         : function (stackString, prefix) {
+		if (!stackString) {
+			return '';
+		}
 		var lines = stackString.split("\n");
 		var lastLine = null;
 
@@ -184,6 +235,7 @@ const utils = {
 			message : err.message,
 			code    : err.event !== undefined ? err.event.code : 0,
 			stack   : debug ? this.getMainStack(err.stack) : null,
+			meta    : err.meta !== undefined ? err.meta : undefined,
 			inner   : null
 		};
 
@@ -196,9 +248,10 @@ const utils = {
 				break;
 			} else {
 				inres.inner = {
-					stack   : debug ? this.getMainStack(inner.stack) : null,
 					message : inner.message,
 					code    : inner.event !== undefined ? inner.event.code : 0,
+					stack   : debug ? this.getMainStack(inner.stack) : null,
+					meta    : inner.meta !== undefined ? inner.meta : undefined,
 					inner   : null
 				};
 				inres = inres.inner;

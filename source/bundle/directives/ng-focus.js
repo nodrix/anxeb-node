@@ -3,7 +3,7 @@
 anxeb.app.directive('ngFocus', function ($timeout, $parse) {
 	return {
 		link : function (scope, element, attrs) {
-			var model = $parse(attrs.focusMe);
+			var model = $parse(attrs.ngFocus);
 			scope.$watch(model, function (value) {
 				if (value === true) {
 					$timeout(function () {

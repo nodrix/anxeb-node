@@ -95,10 +95,17 @@ module.exports = function (service) {
 			if (_service.settings.service.client && _service.settings.service.client.settings) {
 				result.push('\t\tsettings: ' + JSON.stringify(_service.settings.service.client.settings) + ",");
 			}
+
+			var serverParams = {
+				version : _service.server.version
+			};
+
+			result.push('\t\tserver: ' + JSON.stringify(serverParams) + ",");
+
 			result.push('\t\tdefaults : {');
 			result.push('\t\t\tstates : {');
 			result.push('\t\t\t\texception : null,');
-			result.push('\t\t\t\tlogin     : ' + (_service.defaults.states && _service.defaults.states.login.link ? '"' + _service.defaults.states.login.link + '"' : 'null'));
+			result.push('\t\t\t\tlogin     : ' + (_service.defaults.states && _service.defaults.states.login && _service.defaults.states.login.link ? '"' + _service.defaults.states.login.link + '"' : 'null'));
 			result.push('\t\t\t}');
 			result.push('\t\t}');
 			result.push('\t};');

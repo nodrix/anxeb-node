@@ -48,59 +48,59 @@ module.exports = {
 		});
 
 		service.router.route("/anxeb/container/*").get(function (req, res, next) {
-				var requestContainer = utils.url(req.url).pathname.substring(17).replace("./", "");
+			var bearer = req.session.bearer || res.bearer || null;
 
-				var isPublicContainer = false;
-				for (var s in service.states) {
-					var state = service.states[s];
-					if (!state.parent && state.container && state.container === requestContainer && state.access === Enums.RouteAccess.Public) {
-						isPublicContainer = true;
-						break;
-					}
+			var requestContainer = utils.url(req.url).pathname.substring(17).replace("./", "");
+
+			var isPublicContainer = false;
+			for (var s in service.states) {
+				var state = service.states[s];
+				if (!state.parent && state.container && state.container === requestContainer && state.access === Enums.RouteAccess.Public) {
+					isPublicContainer = true;
+					break;
 				}
+			}
 
-				var completeRequest = function () {
-					var fullPath = service.locate.path(service.settings.service.paths.templates.containers, requestContainer) + ".hbs";
+			var completeRequest = function () {
+				var fullPath = service.locate.path(service.settings.service.paths.templates.containers, requestContainer) + ".hbs";
 
-					if (utils.file.exists(fullPath)) {
-						res.set("routeAccess", isPublicContainer ? Enums.RouteAccess.Public : Enums.RouteAccess.Private);
+				if (utils.file.exists(fullPath)) {
+					res.set("routeAccess", isPublicContainer ? Enums.RouteAccess.Public : Enums.RouteAccess.Private);
 
-						if (req.query.full && req.query.full.isTrue()) {
-							res.render(fullPath);
+					if (req.query.full && req.query.full.isTrue()) {
+						res.render(fullPath);
+					} else {
+						res.render(fullPath, { layout : null });
+					}
+				} else {
+					service.log.exception.file_not_found.args(fullPath).throw();
+				}
+			};
+
+			if (!isPublicContainer && !req.session.identity && bearer && bearer.token) {
+				service.keys.verify(bearer.token, function (err, auth) {
+					if (err) {
+						if (err.message === 'jwt expired') {
+							service.log.exception.expired_token.throw();
 						} else {
-							res.render(fullPath, { layout : null });
+							service.log.exception.invalid_auth.args(err).throw();
 						}
 					} else {
-						service.log.exception.file_not_found.args(fullPath).throw();
-					}
-				};
-
-				if (!isPublicContainer && !req.session.identity && res.bearer.token) {
-					service.keys.verify(res.bearer.token, function (err, auth) {
-						if (err) {
-							if (err.message === 'jwt expired') {
-								_self.service.log.exception.expired_token.throw();
-							} else {
-								_self.service.log.exception.invalid_auth.args(err).throw();
-							}
-						} else {
-							if (auth.body.access !== null) {
-								if (auth.body.access.indexOf("/" + requestContainer) < 0) {
-									_self.service.log.exception.unauthorized_access.throw();
-								} else {
-									completeRequest();
-								}
+						if (auth.body.access !== null) {
+							if (auth.body.access.indexOf("/" + requestContainer) < 0) {
+								service.log.exception.unauthorized_access.throw();
 							} else {
 								completeRequest();
 							}
+						} else {
+							completeRequest();
 						}
-					});
-				} else {
-					completeRequest();
-				}
+					}
+				});
+			} else {
+				completeRequest();
 			}
-		)
-		;
+		});
 
 		service.router.route("/anxeb/component/*").get(function (req, res, next) {
 			var requestPath = utils.url(req.url).pathname.substring(17).replace("./", "");

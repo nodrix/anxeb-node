@@ -3,51 +3,54 @@
 anxeb.app.run(function ($rootScope, request, session, page) {
 	$rootScope.session = session;
 	$rootScope.page = page;
-	$rootScope.requests = {
-		queue : request.queue
-	};
-
-	$rootScope.notifications = {
-		list  : [],
-		push  : function (item) {
-			var _self = this;
-			_self.list.push(item);
-
-			setTimeout(function () {
-				_self.list = _self.list.filter(function (listItem) {
-					return item !== listItem;
-				});
-				$rootScope.$apply();
-			}, 5000);
-		},
-		clear : function () {
-			this.list = [];
-		}
-	};
 
 	$rootScope.onAsyncRequestBegin = function (req) {
-		if ($rootScope.requests.begins) {
-			$rootScope.requests.begins(req);
+		if (page.requests.begins) {
+			page.requests.begins(req);
 		}
 	};
 
 	$rootScope.onAsyncRequestFailed = function (req, err) {
 		if (err.data) {
 			var error = typeof(err.data) === "string" ? JSON.parse(err.data) : err.data;
-			$rootScope.notifications.push(new anxeb.Event(error));
+			page.notifications.push(new anxeb.Exception(error));
 			if (error.code === 401) {
 				page.goto.login();
 			}
 		}
-		if ($rootScope.requests.failed) {
-			$rootScope.requests.failed(req, err);
+		if (page.requests.failed) {
+			page.requests.failed(req, err);
 		}
 	};
 
 	$rootScope.onAsyncRequestSuccess = function (req, res) {
-		if ($rootScope.requests.sucess) {
-			$rootScope.requests.sucess(req, res);
+		if (page.requests.sucess) {
+			page.requests.sucess(req, res);
 		}
 	};
+}).config(['$provide', function ($provide) {
+	$provide.decorator('$controller', ['$delegate', function ($delegate) {
+		var _loads = {};
+		return function (constructor, locals) {
 
-});
+			if (typeof(constructor) === "string") {
+				var scope = locals.$scope;
+				var name = constructor;
+				scope.loaded = function (callback) {
+					scope.$on('$viewContentLoaded', function () {
+						if (_loads[name] !== scope.$id) {
+							_loads[name] = scope.$id;
+							callback(scope, name);
+						}
+					});
+				};
+				scope.closed = function (callback) {
+					scope.$on('$destroy', function () {
+						callback(scope, name);
+					});
+				};
+			}
+			return $delegate.apply(this, [].slice.call(arguments));
+		}
+	}]);
+}]);

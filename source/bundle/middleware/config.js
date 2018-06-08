@@ -8,13 +8,10 @@ anxeb.app = angular.module("app", anxeb.modules).config(function ($interpolatePr
 });
 
 anxeb.controller = function (name) {
-	var controllerWrapper = function (name) {
-		var _self = this;
-		_self.name = name;
-
-		_self.set = function (callback) {
-			anxeb.app.controller(_self.name + "Controller", callback);
-		}
+	var _self = this;
+	_self.name = name;
+	_self.set = function (controller) {
+		anxeb.app.controller(_self.name + "Controller", controller);
 	};
-	return new controllerWrapper(name);
+	return _self;
 };

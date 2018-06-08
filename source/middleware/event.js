@@ -12,6 +12,7 @@ const Event = function (params) {
 	_self.title = [moment().format("hh:mm:ss a")];
 	_self.message = null;
 	_self.code = null;
+
 	_self.type = null;
 	_self.error = null;
 	_self.color = null;
@@ -33,28 +34,36 @@ const Event = function (params) {
 
 	var _debug = _log.settings && _log.settings.debug;
 
+	_self.include = function (meta) {
+		_self.meta = meta;
+
+		return _self;
+	};
+
 	_self.args = function () {
 		var items = arguments.length > 0 && arguments[0].toString() === "[object Arguments]" ? arguments[0] : arguments;
 		for (var i in items) {
 			var value = items[i];
-			var argIsError = value instanceof Error;
 
-			if (argIsError) {
-				_self.error = value;
-				if (_self.error.message) {
-					_self.message = _self.message.replace("[inner]", value.message);
+			if (value !== undefined && value !== null) {
+
+				if (value && value.message) {
+					_self.error = value;
+					if (_self.error.message) {
+						_self.message = _self.message.replace("[inner]", value.message);
+					} else {
+						_self.message = _self.message.replace("[inner]", '');
+					}
 				} else {
-					_self.message = _self.message.replace("[inner]", '');
-				}
-			} else {
-				if (value !== undefined && value !== null) {
-					_self.message = _self.message.replace("[" + i + "]", value.toString());
-					_self.message = _self.message.replace("[R" + i + "]", clc.redBright(value.toString()));
-					_self.message = _self.message.replace("[Y" + i + "]", clc.yellowBright(value.toString()));
-					_self.message = _self.message.replace("[B" + i + "]", clc.blueBright(value.toString()));
-					_self.message = _self.message.replace("[W" + i + "]", clc.whiteBright(value.toString()));
-					_self.message = _self.message.replace("[M" + i + "]", clc.cyanBright(value.toString()));
-					_self.message = _self.message.replace("[X" + i + "]", value.toString(16).toUpperCase());
+					if (value !== undefined && value !== null) {
+						_self.message = _self.message.replace("[" + i + "]", value.toString());
+						_self.message = _self.message.replace("[R" + i + "]", clc.redBright(value.toString()));
+						_self.message = _self.message.replace("[Y" + i + "]", clc.yellowBright(value.toString()));
+						_self.message = _self.message.replace("[B" + i + "]", clc.blueBright(value.toString()));
+						_self.message = _self.message.replace("[W" + i + "]", clc.whiteBright(value.toString()));
+						_self.message = _self.message.replace("[M" + i + "]", clc.cyanBright(value.toString()));
+						_self.message = _self.message.replace("[X" + i + "]", value.toString(16).toUpperCase());
+					}
 				}
 			}
 		}
@@ -69,6 +78,7 @@ const Event = function (params) {
 	_self.print = function () {
 		var logText = "";
 		var clcText = "";
+
 		var inner = _self.error && _self.error.event !== this ? _self.error : null;
 
 		if (_self.type === Enums.EventType.Debug) {
@@ -136,10 +146,11 @@ const Event = function (params) {
 		return _self;
 	};
 
-	this.throw = function (context) {
-		var err = _self.toError();
-		if (context !== undefined) {
-			context.next(err);
+	this.throw = function (params) {
+		var err = _self.toError(params);
+
+		if (params && params.next) {
+			params.next(err);
 		} else {
 			try {
 				throw err;
@@ -158,13 +169,12 @@ const Event = function (params) {
 	};
 
 	_self.toError = function (params) {
-		var error = new Error(this.message);
-		error.inner = _self.error;
-		error.event = _self;
-		if (params) {
-			error.exit = params.exit || false;
-		}
-		return error;
+		var err = new Error(this.message);
+		err.inner = _self.error;
+		err.event = _self;
+		err.exit = params !== undefined ? params.exit || false : false;
+		err.meta = params !== undefined ? params.meta || _self.meta : null;
+		return err;
 	};
 
 };

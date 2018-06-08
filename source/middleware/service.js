@@ -50,7 +50,7 @@ module.exports = function (server, params) {
 	_self.key = params.key;
 	_self.domain = params.domain;
 	_self.active = params.active;
-	_self.configuration = params.configuration;
+	_self.configuration = params.configuration || {};
 	_self.settings = params.settings;
 	_self.callbacks = params.callbacks || {};
 	_self.initialize = params.initialize;
@@ -61,6 +61,7 @@ module.exports = function (server, params) {
 	_self.application = {};
 
 	_self.server = server;
+
 	_self.locate = new utils.locate(_self.server.paths.source);
 	_self.defaults = {
 		states : {
@@ -152,17 +153,18 @@ module.exports = function (server, params) {
 			_self.log.exception.private_key_not_found.throw();
 		}
 
-		if (options === undefined) {
-			options = {};
+		var _options = {};
+		if (options) {
+			_options = utils.copy(options);
 		}
 
 		var payload = {
 			alg  : "RS256",
 			typ  : "JWT",
-			iss  : options.iss || _self.domain,
-			exp  : options.exp || moment().add(_self.keys.expiration, 'seconds').valueOf() / 1000,
-			nbf  : options.nbf || moment().add(-1, 'minute').valueOf() / 1000,
-			iat  : options.iat || moment().valueOf() / 1000,
+			iss  : _options.iss || _self.domain,
+			exp  : _options.exp || moment().add(_self.keys.expiration, 'seconds').valueOf() / 1000,
+			nbf  : _options.nbf || moment().add(-1, 'minute').valueOf() / 1000,
+			iat  : _options.iat || moment().valueOf() / 1000,
 			body : body
 		};
 
@@ -418,7 +420,7 @@ module.exports = function (server, params) {
 		};
 
 		if (_self.configuration) {
-			_defaultConfiguration = utils.copy(params.configuration);
+			_defaultConfiguration = utils.copy(_self.configuration);
 			var configFileName = path.join('config', _self.key + '.json');
 			_self.storage.fetch(configFileName, function (err, data) {
 				if (_defaultConfiguration.overwrite || err) {

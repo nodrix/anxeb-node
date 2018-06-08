@@ -4,7 +4,7 @@ const Enums = require("../middleware/enums");
 
 module.exports = {
 	server_started             : {
-		message : 'Anxeb instance started on [date] at [time].',
+		message : 'Anxeb server [M1] [M0] started on [date] at [time].',
 		type    : Enums.EventType.Debug
 	},
 	service_instance_starting  : {

@@ -9,12 +9,20 @@ module.exports = function (params, type) {
 	_self.dispatch = {};
 
 	var checkIdentity = function (req, res, next) {
+		var call = {
+			req  : req,
+			res  : res,
+			next : next
+		};
+
 		if (params.access !== Enums.RouteAccess.Public) {
 			if (_self.service.keys) {
-				if (res.bearer && res.bearer.client) {
+				var bearer = req.session.bearer || res.bearer || null;
+
+				if (bearer && bearer.client) {
 					if (params.access === Enums.RouteAccess.Private) {
-						if (res.bearer.token) {
-							_self.service.keys.verify(res.bearer.token, function (err, auth) {
+						if (bearer.token) {
+							_self.service.keys.verify(bearer.token, function (err, auth) {
 								if (err) {
 									if (err.message === 'jwt expired') {
 										_self.service.log.exception.expired_token.throw();
@@ -36,7 +44,6 @@ module.exports = function (params, type) {
 				} else {
 					if (!req.session.identity) {
 						_self.service.log.exception.unauthorized_access.throw();
-						//_self.service.log.exception.invalid_token.throw({ next : next });
 					}
 				}
 			} else {
@@ -46,14 +53,18 @@ module.exports = function (params, type) {
 			}
 		}
 
-		res.setTimeout(params.timeout || 5000, function () {
-			_self.service.log.exception.request_timeout.throw({ next : next });
-		});
 		next();
 	};
 
 	var setupMethod = function (method) {
 		var methodCall = function (req, res, next, options) {
+			var bearer = req.session.bearer || res.bearer || null;
+			var call = {
+				req  : req,
+				res  : res,
+				next : next
+			};
+
 			var preMethodConfig = function (req, res) {
 				if (params.preMethodConfig) {
 					params.preMethodConfig(req, res);
@@ -66,15 +77,17 @@ module.exports = function (params, type) {
 				if (params.postMethodConfig) {
 					params.postMethodConfig(req, res, payload);
 				}
-				res.set("identified", !(req.session.identity === null || req.session.identity === undefined));
+				res.set("identified", (req.session.identity !== null && req.session.identity !== undefined) || (req.session.bearer !== null && req.session.bearer !== undefined));
 			};
 
 			preMethodConfig(req, res);
 
-			var bearer = res.bearer;
 			if (bearer && bearer.token) {
 				bearer.auth = _self.service.keys.decode(bearer.token);
+			} else if (params.access === Enums.RouteAccess.Private) {
+				_self.service.log.exception.unauthorized_access.throw();
 			}
+
 			method({
 				render      : function (payload) {
 					if (res.finished || res.statusCode === 408) {
@@ -102,6 +115,21 @@ module.exports = function (params, type) {
 
 					postMethodConfig(req, res, payload);
 					res.send(payload);
+				},
+				image       : function (data) {
+					var img = data;
+
+					if (data.startsWith('data:image/jpeg;base64')) {
+						data = data.replace(/^data:image\/jpeg;base64,/, "");
+						img = new Buffer(data, 'base64');
+						res.type('jpeg');
+					} else if (data.startsWith('data:image/png;base64')) {
+						data = data.replace(/^data:image\/png;base64,/, "");
+						img = new Buffer(data, 'base64');
+						res.type('png');
+					}
+
+					res.end(img);
 				},
 				complete    : function () {
 					this.send();
@@ -132,9 +160,24 @@ module.exports = function (params, type) {
 				forward     : function (func) {
 					func(req, res, next);
 				},
-				sign        : function (payload) {
-					this.send(_self.service.sign(payload));
+				sign        : function (payload, options) {
+					this.send(_self.service.sign(payload, options));
+				},
+				auth        : function (payload, options) {
+					var token = _self.service.sign(payload, options);
+					if (options && options.parent && options.parent.token) {
+						options.parent.token = token;
+						req.session.bearer = options.parent;
+					}
+					return token;
+				},
+				logout      : function () {
+					req.session.bearer = undefined;
 				}
+			});
+
+			res.setTimeout(params.timeout || 5000, function () {
+				_self.service.log.exception.request_timeout.throw({ next : next });
 			});
 		};
 

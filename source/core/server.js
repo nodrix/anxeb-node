@@ -11,7 +11,6 @@ module.exports = function (params) {
 
 	_self.log = new Log(true);
 
-
 	if (!params.name) {
 		_self.log.exception.missing_param_name.exit();
 	}
@@ -22,6 +21,8 @@ module.exports = function (params) {
 
 	utils.fillServerParameters(params);
 
+	params.version = params.version || require(params.settings.paths.root + '/package.json').version;
+	_self.version = params.version;
 	_self.instances = [];
 	_self.settings = params.settings;
 	_self.paths = _self.settings.paths;
@@ -32,7 +33,7 @@ module.exports = function (params) {
 		identifier : params.name,
 		settings   : params.settings.log
 	});
-	_self.log.debug.server_started.print();
+	_self.log.debug.server_started.args('v' + params.version, params.description, params.name, params.key).print();
 	var _handleError = function (err) {
 		if (err.event === undefined) {
 			_self.log.exception.unhandled_exception.args(err).print();

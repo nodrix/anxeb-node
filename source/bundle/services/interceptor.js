@@ -3,11 +3,20 @@
 anxeb.app.service('interceptor', ['$rootScope', '$q', '$injector', function ($rootScope, $q, $injector, session) {
 	var _self = this;
 	var _identified = false;
-	_self.cache = {
-		private : []
+
+	_self.reset = function () {
+		_identified = false;
+		_self.cache = {
+			private : []
+		};
+		_self.headers = {};
 	};
 
-	_self.headers = {};
+	_self.reset();
+
+	_self.bearer = function (bearer) {
+		_self.headers.Authorization = "Bearer " + bearer;
+	};
 
 	_self.response = function (response) {
 		if (response.headers("routeAccess") === anxeb.Enums.RouteAccess.Private) {
@@ -40,14 +49,14 @@ anxeb.app.service('interceptor', ['$rootScope', '$q', '$injector', function ($ro
 	};
 
 	_self.responseError = function (response) {
-		if (response.headers("routeType") !== anxeb.Enums.RouteType.Action) {
+		//if (response.headers("routeType") !== anxeb.Enums.RouteType.Action) {
 			if ($rootScope.onAsyncRequestFailed) {
 				$rootScope.onAsyncRequestFailed(null, response);
 			}
-		}
-		if (response.status === 401) {
-			return true;
-		}
+		//}
+		/*if (response.status === 401) {
+			return response;
+		}*/
 		return $q.reject(response);
 	};
 }]);

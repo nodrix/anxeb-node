@@ -1,25 +1,104 @@
 'use strict';
 
-anxeb.app.service("page", function ($state, $location, $stateParams) {
+anxeb.app.service("page", function ($rootScope, $state, $location, $stateParams, request) {
 	var _self = this;
-	_self.state = {};
+
+	_self.title = $state.current.data ? $state.current.data.title : null;
+	_self.icon = $state.current.data ? $state.current.data.icon : null;
+	_self.menu = $state.current.menu ? $state.current.data.menu : [];
+	_self.settings = {
+		notifications : {
+			maximum : 1,
+			timeout : 3000
+		}
+	};
 
 	$state.defaultErrorHandler(function () { });
 
-	_self.load = function (state, params) {
-		return $state.go(state, params, {
-			reload : false,
-			cache  : false
-		});
+	_self.setup = function (params) {
+		_self.title = params.title;
+		_self.icon = params.icon;
+		_self.menu = params.menu ? params.menu : [];
+		_self.settings = params.settings || _self.settings;
 	};
 
+	_self.reset = function () {
+		_self.title = null;
+		_self.icon = null;
+		_self.menu = null;
+		_self.scopes = {};
+		_self.notifications.clear();
+	};
+
+	_self.load = function (state, params) {
+		if ($state.current.name !== state || JSON.stringify(params) !== JSON.stringify($state.params)) {
+			_self.reset();
+			return $state.go(state, params, {
+				reload : true,
+				cache  : false
+			});
+		}
+	};
 
 	_self.redirect = function (state, params) {
+		if ($state.current.name !== state) {
+			_self.reset();
+		}
 		return $state.go(state, params, {
 			reload : true,
 			cache  : false
 		});
 	};
+
+	_self.requests = {
+		queue : request.queue
+	};
+
+	_self.notifications = {
+		list  : [],
+		push  : function (item) {
+			if (_self.notification) {
+				if (_self.notification.type === item.type && _self.notification.message === item.message) {
+					return;
+				}
+			}
+
+			var _notifications = this;
+
+			_notifications.list.push(item);
+			item.visible = true;
+
+			if (_self.settings.notifications.maximum > 0) {
+				setTimeout(function () {
+					for (var i = 0; i < _notifications.list.length - _self.settings.notifications.maximum; i++) {
+						var hid = _notifications.list[i];
+						hid.visible = false;
+					}
+					$rootScope.$apply();
+				}, 0);
+			}
+
+			setTimeout(function () {
+				item.visible = false;
+				$rootScope.$apply();
+
+				setTimeout(function () {
+					_notifications.list = _notifications.list.filter(function (listItem) {
+						return item !== listItem;
+					});
+				}, 400);
+			}, _self.settings.notifications.timeout);
+		},
+		clear : function () {
+			this.list = [];
+		}
+	};
+
+	Object.defineProperty(_self, "notification", {
+		get : function () {
+			return _self.notifications.list.length ? _self.notifications.list[_self.notifications.list.length - 1] : null;
+		}
+	});
 
 	Object.defineProperty(_self, "params", {
 		get : function () {
@@ -27,9 +106,25 @@ anxeb.app.service("page", function ($state, $location, $stateParams) {
 		}
 	});
 
-	Object.defineProperty(_self.state, "data", {
+	Object.defineProperty(_self, "state", {
+		get : function () {
+			return $state;
+		}
+	});
+
+	_self.includes = function (state) {
+		return $state.includes(state);
+	};
+
+	Object.defineProperty(_self, "data", {
 		get : function () {
 			return $state.current.data;
+		}
+	});
+
+	Object.defineProperty(_self, "current", {
+		get : function () {
+			return $state.current;
 		}
 	});
 

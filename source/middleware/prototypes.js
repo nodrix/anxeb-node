@@ -52,6 +52,13 @@ module.exports = function () {
 		}
 	}
 
+	if (!String.prototype.toCapital) {
+		String.prototype.toCapital = function () {
+			var value = this.toLowerCase();
+			return value.charAt(0).toUpperCase() + value.slice(1);
+		}
+	}
+
 	if (!String.prototype.isTrue) {
 		String.prototype.isTrue = function () {
 			return this.toLowerCase() === "true" || this.toLowerCase() === "t" || this.toLowerCase() === "1" || this.toLowerCase() === "yes";

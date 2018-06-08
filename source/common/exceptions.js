@@ -9,12 +9,16 @@ module.exports = {
 		code    : -1,
 		type    : Enums.EventType.InternalError
 	},
+	inner_exception     : {
+		message : "[inner]",
+		code    : -1,
+		type    : Enums.EventType.InternalError
+	},
 	unhandled_exception : {
 		message : "Unhandled exception. [0]",
 		code    : 0,
 		type    : Enums.EventType.InternalError
 	},
-
 	// ====== 15** : Missing parameters exceptions =====================================================================
 	missing_param_name  : {
 		message : "Name parameter missing.",

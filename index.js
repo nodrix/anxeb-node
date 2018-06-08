@@ -4,6 +4,7 @@ require('./source/middleware/prototypes')();
 const Server = require('./source/core/server');
 const Enums = require("./source/middleware/enums");
 const MongooseTypes = require('mongoose').Schema.Types;
+const utils = require('./source/common/utils');
 const path = require('path');
 const uuid = require('uuid');
 
@@ -12,7 +13,9 @@ module.exports = {
 	Enums  : Enums,
 	utils  : {
 		path : path,
-		uuid : uuid
+		uuid : uuid,
+		data : utils.data,
+		copy : utils.copy
 	},
 	Types  : {
 		ObjectId      : MongooseTypes.ObjectId,

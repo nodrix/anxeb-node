@@ -36,7 +36,8 @@ module.exports = function (service) {
 		result.push('<script src="/anxeb/bundle/middleware/config.js"></script>');
 		result.push('<script src="/anxeb/bundle/middleware/utils.js"></script>');
 		result.push('<script src="/anxeb/bundle/middleware/enums.js"></script>');
-		result.push('<script src="/anxeb/bundle/middleware/event.js"></script>');
+		result.push('<script src="/anxeb/bundle/middleware/exception.js"></script>');
+		result.push('<script src="/anxeb/bundle/middleware/information.js"></script>');
 
 		result.push('<script src="/anxeb/bundle/services/page.js"></script>');
 		result.push('<script src="/anxeb/bundle/services/request.js"></script>');
@@ -47,6 +48,10 @@ module.exports = function (service) {
 		result.push('<script src="/anxeb/bundle/directives/ng-enter.js"></script>');
 		result.push('<script src="/anxeb/bundle/directives/ng-focus.js"></script>');
 		result.push('<script src="/anxeb/bundle/directives/ng-script.js"></script>');
+		result.push('<script src="/anxeb/bundle/directives/ng-go.js"></script>');
+
+		result.push('<script src="/anxeb/bundle/filters/reverse.js"></script>');
+
 		result.push('<script src="/anxeb/bundle/middleware/global.js"></script>');
 		result.push('<script src="/anxeb/bundle/computed/states.js"></script>');
 

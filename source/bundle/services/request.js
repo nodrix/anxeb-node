@@ -56,7 +56,7 @@ anxeb.app.service("request", function ($http, $rootScope) {
 		_request.state = anxeb.Enums.RequestState.StandBy;
 
 		var updateRoot = function () {
-			$rootScope.requests.queue = _self.queue;
+			$rootScope.page.requests.queue = _self.queue;
 		};
 
 		var begin = function () {
@@ -73,9 +73,9 @@ anxeb.app.service("request", function ($http, $rootScope) {
 
 		var failed = function (err) {
 			updateRoot();
-			if ($rootScope.onAsyncRequestFailed) {
+			/*if ($rootScope.onAsyncRequestFailed) {
 				$rootScope.onAsyncRequestFailed(_request, err);
-			}
+			}*/
 			if (_callbacks.failed !== null && _callbacks.failed !== undefined) {
 				_callbacks.failed(err, _request);
 			}
@@ -83,9 +83,9 @@ anxeb.app.service("request", function ($http, $rootScope) {
 
 		var canceled = function () {
 			updateRoot();
-			if ($rootScope.onAsyncRequestFailed) {
+			/*if ($rootScope.onAsyncRequestFailed) {
 				$rootScope.onAsyncRequestFailed(_request);
-			}
+			}*/
 			if (_callbacks.failed !== null && _callbacks.failed !== undefined) {
 				_callbacks.failed(null, _request);
 			}
@@ -110,7 +110,7 @@ anxeb.app.service("request", function ($http, $rootScope) {
 				return;
 			}
 
-			if (_request.options.bearer) {
+			if (_request.options && _request.options.bearer) {
 				if (!_request.headers) {
 					_request.headers = {};
 				}

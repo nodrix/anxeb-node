@@ -22,6 +22,10 @@ module.exports = function (firstLog) {
 			});
 		};
 
+		event.include = function (meta) {
+			return this.toEvent().include(meta);
+		};
+
 		event.args = function () {
 			return this.toEvent().args(arguments);
 		};
@@ -38,8 +42,8 @@ module.exports = function (firstLog) {
 			return this.toEvent().exit();
 		};
 
-		event.toError = function () {
-			return this.toEvent().toError();
+		event.toError = function (params) {
+			return this.toEvent().toError(params);
 		};
 
 		return event;
