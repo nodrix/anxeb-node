@@ -1,12 +1,12 @@
 'use strict';
 require('./source/middleware/prototypes')();
 
-const Server = require('./source/core/server');
-const Enums = require("./source/middleware/enums");
-const MongooseTypes = require('mongoose').Schema.Types;
-const utils = require('./source/common/utils');
-const path = require('path');
-const uuid = require('uuid');
+var Server = require('./source/core/server');
+var Enums = require("./source/middleware/enums");
+var MongooseTypes = require('mongoose').Schema.Types;
+var utils = require('./source/common/utils');
+var path = require('path');
+var uuid = require('uuid');
 
 module.exports = {
 	Server : Server,
@@ -24,5 +24,8 @@ module.exports = {
 		DocumentArray : MongooseTypes.DocumentArray,
 		Decimal128    : MongooseTypes.Decimal128,
 		Mixed         : MongooseTypes.Mixed
+	},
+	Data   : {
+		Schema : require('mongoose').Schema
 	}
 };

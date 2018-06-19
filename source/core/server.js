@@ -1,10 +1,10 @@
 'use strict';
 
-const path = require('path');
-const utils = require('../common/utils');
-const Log = require("../middleware/log");
-const Service = require('../middleware/service');
-const async = require('async');
+var path = require('path');
+var utils = require('../common/utils');
+var Log = require("../middleware/log");
+var Service = require('../middleware/service');
+var async = require('async');
 
 module.exports = function (params) {
 	var _self = this;

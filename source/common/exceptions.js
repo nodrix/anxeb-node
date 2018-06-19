@@ -1,6 +1,6 @@
 'use strict';
 
-const Enums = require("../middleware/enums");
+var Enums = require("../middleware/enums");
 
 module.exports = {
 	// ====== ** : Internal exceptions =================================================================================

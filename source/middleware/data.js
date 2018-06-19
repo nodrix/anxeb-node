@@ -1,11 +1,11 @@
 'use strict';
 
-const utils = require("../common/utils");
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
-const fs = require("fs");
-const bluebird = require('bluebird');
-const path = require("path");
+var utils = require("../common/utils");
+var mongoose = require("mongoose");
+var Schema = mongoose.Schema;
+var fs = require("fs");
+var bluebird = require('bluebird');
+var path = require("path");
 
 module.exports = function (service) {
 	var _self = this;
@@ -20,9 +20,40 @@ module.exports = function (service) {
 
 	_self.include = {
 		model : function (params) {
-			_self.models[params.name] = _self.context.model(params.name, new Schema(params.schema, {
+
+			if (params.childs) {
+				for (var c in params.childs) {
+					var child_params = params.childs[c];
+					var child_schema = new Schema(child_params);
+					var child_name = params.name + '_' + c;
+					_self.models[child_name] = _self.context.model(child_name, new Schema(child_schema));
+					params.childs[c] = child_schema;
+				}
+			}
+
+			var options = {
 				collection : params.collection || params.name
-			}));
+			};
+
+			if (params.options) {
+				options = params.options;
+				options.collection = params.collection || params.options.collection || params.name
+			}
+
+			var schema = new Schema(params.schema, options);
+
+			if (params.virtuals) {
+				for (var v in params.virtuals) {
+					schema.virtual(v).get(params.virtuals[v]);
+				}
+			}
+
+			if (params.methods) {
+				for (var m in params.methods) {
+					schema.method(m, params.methods[m]);
+				}
+			}
+			_self.models[params.name] = _self.context.model(params.name, schema);
 		}
 	};
 

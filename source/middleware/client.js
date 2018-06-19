@@ -1,6 +1,6 @@
 'use strict';
 
-const moment = require("moment");
+var moment = require("moment");
 
 module.exports = function (service, params) {
 	var _self = this;

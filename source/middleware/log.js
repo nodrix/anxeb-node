@@ -1,7 +1,7 @@
 'use strict';
 
-const Event = require("../middleware/event");
-const Enums = require("../middleware/enums");
+var Event = require("../middleware/event");
+var Enums = require("../middleware/enums");
 
 module.exports = function (firstLog) {
 	var _self = this;

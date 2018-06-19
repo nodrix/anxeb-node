@@ -1,8 +1,8 @@
 'use strict';
 
-const utils = require("../common/utils");
-const path = require("path");
-const Enums = require("../middleware/enums");
+var utils = require("../common/utils");
+var path = require("path");
+var Enums = require("../middleware/enums");
 
 module.exports = function (service) {
 	var _self = this;

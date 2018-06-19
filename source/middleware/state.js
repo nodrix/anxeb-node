@@ -1,11 +1,11 @@
 'use strict';
 
-const utils = require("../common/utils");
-const Enums = require("../middleware/enums");
-const Route = require("../middleware/route");
-const Action = require("../middleware/action");
+var utils = require("../common/utils");
+var Enums = require("../middleware/enums");
+var Route = require("../middleware/route");
+var Action = require("../middleware/action");
 
-const State = function (service, params, parent) {
+var State = function (service, params, parent) {
 	var _self = this;
 	_self.service = service;
 	_self.parent = parent || null;

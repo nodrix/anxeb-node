@@ -1,13 +1,13 @@
 'use strict';
 
-const path = require('path');
-const clc = require("cli-color");
-const moment = require("moment");
-const fs = require("fs");
-const mkpath = require("mkpath");
-const URL = require("url-parse");
+var path = require('path');
+var clc = require("cli-color");
+var moment = require("moment");
+var fs = require("fs");
+var mkpath = require("mkpath");
+var URL = require("url-parse");
 
-const utils = {
+var utils = {
 	data                 : {
 		populate : function (obj, source) {
 			var model = obj._doc || obj;
@@ -258,6 +258,30 @@ const utils = {
 			}
 		}
 		return result;
+	},
+	canAccess            : function (claims, path, method) {
+		for (var c = 0; c < claims.length; c++) {
+			var claim = claims[c];
+			if (typeof(claim) === 'string') {
+				if (claim.indexOf(path) > -1) {
+					return true;
+				}
+			} else {
+				if ((claim.path === '*' || claim.path.indexOf(path) > -1) && (claim.method === '*' || method.toLowerCase() === claim.method.toLocaleString())) {
+					return true;
+				}
+			}
+		}
+	},
+	getBearer            : function (req, res) {
+		var bearer = req.session.bearer || res.bearer || null;
+		if (!bearer && req.headers.authorization) {
+			bearer = {
+				token  : req.headers.authorization.substring(7),
+				client : null
+			}
+		}
+		return bearer;
 	}
 };
 

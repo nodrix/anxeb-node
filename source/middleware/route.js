@@ -1,6 +1,7 @@
 'use strict';
 
-const Enums = require("./enums");
+var Enums = require("./enums");
+var utils = require('../common/utils');
 
 module.exports = function (params, type) {
 	var _self = this;
@@ -17,9 +18,9 @@ module.exports = function (params, type) {
 
 		if (params.access !== Enums.RouteAccess.Public) {
 			if (_self.service.keys) {
-				var bearer = req.session.bearer || res.bearer || null;
+				var bearer = utils.getBearer(req, res);
 
-				if (bearer && bearer.client) {
+				if (bearer && bearer.client !== undefined) {
 					if (params.access === Enums.RouteAccess.Private) {
 						if (bearer.token) {
 							_self.service.keys.verify(bearer.token, function (err, auth) {
@@ -31,7 +32,7 @@ module.exports = function (params, type) {
 									}
 								} else {
 									if (auth.body.access !== null) {
-										if (auth.body.access.indexOf(params.path) < 0) {
+										if (!utils.canAccess(auth.body.access, params.path, req.method)) {
 											_self.service.log.exception.unauthorized_access.throw();
 										}
 									}
@@ -58,7 +59,8 @@ module.exports = function (params, type) {
 
 	var setupMethod = function (method) {
 		var methodCall = function (req, res, next, options) {
-			var bearer = req.session.bearer || res.bearer || null;
+			var bearer = utils.getBearer(req, res);
+
 			var call = {
 				req  : req,
 				res  : res,

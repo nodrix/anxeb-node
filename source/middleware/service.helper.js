@@ -1,8 +1,8 @@
 'use strict';
 
-const utils = require("../common/utils");
-const path = require("path");
-const Enums = require("../middleware/enums");
+var utils = require("../common/utils");
+var path = require("path");
+var Enums = require("../middleware/enums");
 
 module.exports = {
 	setInternatRoutes : function (service) {
@@ -48,8 +48,7 @@ module.exports = {
 		});
 
 		service.router.route("/anxeb/container/*").get(function (req, res, next) {
-			var bearer = req.session.bearer || res.bearer || null;
-
+			var bearer = utils.getBearer(req, res);
 			var requestContainer = utils.url(req.url).pathname.substring(17).replace("./", "");
 
 			var isPublicContainer = false;
@@ -87,7 +86,7 @@ module.exports = {
 						}
 					} else {
 						if (auth.body.access !== null) {
-							if (auth.body.access.indexOf("/" + requestContainer) < 0) {
+							if (!utils.canAccess(auth.body.access, "/" + requestContainer, req.method)) {
 								service.log.exception.unauthorized_access.throw();
 							} else {
 								completeRequest();

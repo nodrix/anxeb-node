@@ -1,11 +1,11 @@
 'use strict';
 
-const utils = require("../common/utils");
-const Enums = require("../middleware/enums");
-const clc = require('cli-color');
-const moment = require("moment");
+var utils = require("../common/utils");
+var Enums = require("../middleware/enums");
+var clc = require('cli-color');
+var moment = require("moment");
 
-const Event = function (params) {
+var Event = function (params) {
 	var _self = this;
 	var _log = null;
 

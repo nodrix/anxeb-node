@@ -1,8 +1,8 @@
 'use strict';
 
-const fs = require("fs");
-const utils = require("../common/utils");
-const ComputedBundler = require("../middleware/bundler.computed");
+var fs = require("fs");
+var utils = require("../common/utils");
+var ComputedBundler = require("../middleware/bundler.computed");
 
 module.exports = function (service) {
 	var _self = this;
