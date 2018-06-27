@@ -59,6 +59,10 @@ module.exports = function (server, params) {
 	_self.jobs = {};
 	_self.clients = [];
 	_self.application = {};
+	_self.call = {
+		properties : {},
+		methods    : {}
+	};
 
 	_self.server = server;
 
@@ -318,10 +322,10 @@ module.exports = function (server, params) {
 			if (isClient) {
 				res.json(response);
 			} else if (_self.defaults.states.login && (
-					err.event.code === _self.log.exception.unauthorized_access.code ||
-					err.event.code === _self.log.exception.invalid_auth.code ||
-					err.event.code === _self.log.exception.expired_token.code ||
-					err.event.code === _self.log.exception.invalid_token.code)
+				err.event.code === _self.log.exception.unauthorized_access.code ||
+				err.event.code === _self.log.exception.invalid_auth.code ||
+				err.event.code === _self.log.exception.expired_token.code ||
+				err.event.code === _self.log.exception.invalid_token.code)
 			) {
 				res.redirect(_self.defaults.states.login.path);
 			} else {

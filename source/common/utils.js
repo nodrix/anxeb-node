@@ -199,29 +199,32 @@ var utils = {
 		var lastLine = null;
 
 		for (var i in lines) {
-			var line = lines[i];
-			var fromPrintMethod = (line.includes("_self.print (/") && line.includes("middleware/event.js"));
-			var fromErrorMethod = (line.includes("toError (/") && line.includes("middleware/event.js"));
-			var fromThrowMethod = ((line.includes("throw (/") || line.includes("exit (/")) && (line.includes("middleware/log.js") || line.includes("middleware/event.js")));
-			var fromExitMethod = (line.includes("exit (/") && line.includes("middleware/log.js"));
+			if (lines[i]) {
+				var line = lines[i].toString();
+				var fromPrintMethod = (line.includes("_self.print (/") && line.includes("middleware/event.js"));
+				var fromErrorMethod = (line.includes("toError (/") && line.includes("middleware/event.js"));
+				var fromThrowMethod = ((line.includes("throw (/") || line.includes("exit (/")) && (line.includes("middleware/log.js") || line.includes("middleware/event.js")));
+				var fromExitMethod = (line.includes("exit (/") && line.includes("middleware/log.js"));
 
-			var notAt = !line.startsWith("    at ");
-			var isModule = line.includes("node_modules");
+				var notAt = !line.startsWith("    at ");
+				var isModule = line.includes("node_modules");
 
-			if (notAt || isModule || fromErrorMethod || fromThrowMethod || fromExitMethod || fromPrintMethod) {
+				if (notAt || isModule || fromErrorMethod || fromThrowMethod || fromExitMethod || fromPrintMethod) {
 
-			} else {
-				var st = line.indexOf("/");
-				if (st > 0) {
-					var link = line.substring(st);
-					link = link.replace(")", "").replace("(", "").replace("\n", "");
-					if (prefix) {
-						return prefix + link;
+				} else {
+					var st = line.indexOf("/");
+					if (st > 0) {
+						var link = line.substring(st);
+						link = link.replace(")", "").replace("(", "").replace("\n", "");
+						if (prefix) {
+							return prefix + link;
+						}
+						return link;
 					}
-					return link;
 				}
 			}
 		}
+
 		if (lastLine === null) {
 			return "";
 		}

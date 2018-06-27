@@ -90,7 +90,7 @@ module.exports = function (params, type) {
 				_self.service.log.exception.unauthorized_access.throw();
 			}
 
-			method({
+			var callContext = {
 				render      : function (payload) {
 					if (res.finished || res.statusCode === 408) {
 						return;
@@ -176,7 +176,23 @@ module.exports = function (params, type) {
 				logout      : function () {
 					req.session.bearer = undefined;
 				}
-			});
+			};
+
+			if (_self.service.call.properties) {
+				for (var m in _self.service.call.properties) {
+					Object.defineProperty(callContext, m, {
+						get : _self.service.call.properties[m]
+					});
+				}
+			}
+
+			if (_self.service.call.methods) {
+				for (var m in _self.service.call.methods) {
+					callContext[m] = _self.service.call.methods[m];
+				}
+			}
+
+			method(callContext);
 
 			res.setTimeout(params.timeout || 5000, function () {
 				_self.service.log.exception.request_timeout.throw({ next : next });
