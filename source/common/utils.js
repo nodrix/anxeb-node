@@ -270,7 +270,7 @@ var utils = {
 					return true;
 				}
 			} else {
-				if ((claim.path === '*' || claim.path.indexOf(path) > -1) && (claim.method === '*' || method.toLowerCase() === claim.method.toLocaleString())) {
+				if ((claim.path === '*' || claim.path.indexOf(path) > -1) && (claim.method === '*' || method.toLowerCase() === claim.method.toLowerCase())) {
 					return true;
 				}
 			}
