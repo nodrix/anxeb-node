@@ -117,6 +117,8 @@ module.exports = function (server, params) {
 		}));
 	}
 
+	_self.jwt = jwt;
+
 	if (_self.settings.service.security.keys) {
 		var getKey = function (key) {
 			if (key.indexOf('/') > -1) {

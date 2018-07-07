@@ -14,8 +14,8 @@ var State = function (service, params, parent) {
 	_self.childs = {};
 
 	_self.name = params.name;
-	_self.view = params.view || (parent ? parent.view + "_" + _self.name : _self.name);
-	_self.controller = params.controller || (parent ? parent.controller : _self.name);
+	_self.view = params.view || (parent ? parent.view + '/' + _self.name : _self.name);
+	_self.controller = params.controller || (parent ? parent.controller + '.' + _self.name : _self.name);
 	_self.container = params.container || (parent ? parent.view : null);
 	_self.url = params.url ? params.url : "/" + _self.name;
 	_self.path = parent ? utils.join(parent.path, _self.url) : _self.url;

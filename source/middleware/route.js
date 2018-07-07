@@ -15,6 +15,7 @@ module.exports = function (params, type) {
 			res  : res,
 			next : next
 		};
+		var goNext = true;
 
 		if (params.access !== Enums.RouteAccess.Public) {
 			if (_self.service.keys) {
@@ -23,6 +24,7 @@ module.exports = function (params, type) {
 				if (bearer && bearer.client !== undefined) {
 					if (params.access === Enums.RouteAccess.Private) {
 						if (bearer.token) {
+							goNext = false;
 							_self.service.keys.verify(bearer.token, function (err, auth) {
 								if (err) {
 									if (err.message === 'jwt expired') {
@@ -37,6 +39,7 @@ module.exports = function (params, type) {
 										}
 									}
 								}
+								next();
 							});
 						} else if (!req.session.identity) {
 							_self.service.log.exception.unauthorized_access.throw();
@@ -54,7 +57,9 @@ module.exports = function (params, type) {
 			}
 		}
 
-		next();
+		if (goNext) {
+			next();
+		}
 	};
 
 	var setupMethod = function (method) {
