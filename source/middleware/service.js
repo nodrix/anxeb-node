@@ -29,6 +29,7 @@ var Handlebars = require('handlebars');
 var sio = require("socket.io");
 var schedule = require("node-schedule");
 var request = require('request');
+var fileUpload = require('express-fileupload');
 
 module.exports = function (server, params) {
 	var _self = this;
@@ -80,6 +81,9 @@ module.exports = function (server, params) {
 		},
 		fetch : function (filePath, callback) {
 			utils.file.fetch(path.join(_self.server.settings.paths.storage, filePath), callback);
+		},
+		read  : function (filePath) {
+			return utils.file.read(path.join(_self.server.settings.paths.storage, filePath));
 		}
 	};
 
@@ -98,10 +102,15 @@ module.exports = function (server, params) {
 	_self.express = express();
 	_self.socket = sio(http.createServer(_self.express));
 
+
 	_self.express.use(cors);
 	_self.express.use(bodyParser.json({ limit : '50mb' }));
 	_self.express.use(express.static(_self.locate.path(_self.settings.service.paths.static)));
 	_self.express.use(bodyParser.urlencoded({ limit : '50mb', extended : true }));
+	_self.express.use(fileUpload({
+		limits       : { fileSize : 50 * 1024 * 1024 },
+		abortOnLimit : true
+	}));
 
 	if (_self.settings.service.paths.favicon) {
 		_self.express.use(favicon(_self.locate.path(_self.settings.service.paths.favicon)));

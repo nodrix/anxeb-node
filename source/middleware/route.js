@@ -164,6 +164,7 @@ module.exports = function (params, type) {
 				res         : res,
 				next        : next,
 				application : _self.service.application,
+				files       : req.files || null,
 				forward     : function (func) {
 					func(req, res, next);
 				},
