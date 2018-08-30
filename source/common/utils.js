@@ -107,9 +107,7 @@ var utils = {
 		},
 		modules : function (modulesPath) {
 			if (fs.existsSync(modulesPath)) {
-
 				var files = fs.readdirSync(modulesPath);
-
 				return files.filter(function (file) {
 					return file.endsWith(".js");
 				}).map(function (script) {
@@ -124,10 +122,35 @@ var utils = {
 			}
 		},
 		list    : function (params) {
-			var allFiles = fs.readdirSync(params.path);
-			return allFiles.filter(function (fileName) {
-				return fileName.endsWith(params.endsWith);
-			});
+			var rootPath = params.path;
+
+			var checkPath = function (childPath) {
+				var contPath = path.join(rootPath, childPath);
+				var files = [];
+
+				var checkFile = function (childPath, item) {
+					var relativeFile = path.join(childPath, item);
+					var absoluteFile = path.join(rootPath, childPath, item);
+					var info = fs.statSync(absoluteFile);
+
+					if (info.isFile() && item.endsWith(params.endsWith)) {
+						files.push(relativeFile);
+					} else if (params.subfolders && info.isDirectory()) {
+						var sfiles = checkPath(relativeFile);
+						for (var f = 0; f < sfiles.length; f++) {
+							files.push(sfiles[f]);
+						}
+					}
+				};
+
+				var items = fs.readdirSync(contPath);
+				for (var i = 0; i < items.length; i++) {
+					checkFile(childPath, items[i]);
+				}
+				return files;
+			};
+
+			return checkPath('');
 		},
 		exists  : fs.existsSync
 	},

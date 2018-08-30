@@ -5,7 +5,8 @@ anxeb.app.service("page", function ($rootScope, $state, $location, $stateParams,
 
 	_self.title = $state.current.data ? $state.current.data.title : null;
 	_self.icon = $state.current.data ? $state.current.data.icon : null;
-	_self.menu = $state.current.menu ? $state.current.data.menu : [];
+	_self.menu = $state.current.menu ? $state.current.data.menu : {};
+	_self.href = null;
 	_self.settings = {
 		notifications : {
 			maximum : 1,
@@ -17,8 +18,9 @@ anxeb.app.service("page", function ($rootScope, $state, $location, $stateParams,
 
 	_self.setup = function (params) {
 		_self.title = params.title;
+		_self.key = params.key;
 		_self.icon = params.icon;
-		_self.menu = params.menu ? params.menu : [];
+		_self.menu = params.menu ? params.menu : {};
 		_self.settings = params.settings || _self.settings;
 	};
 
@@ -30,18 +32,26 @@ anxeb.app.service("page", function ($rootScope, $state, $location, $stateParams,
 		_self.notifications.clear();
 	};
 
-	_self.load = function (state, params) {
-		if ($state.current.name !== state || JSON.stringify(params) !== JSON.stringify($state.params)) {
-			_self.reset();
+	_self.load = function (state, params, options) {
+		var href = $state.href(state, params);
+
+		if (_self.href !== href) {
+			_self.href = href;
+			if (!options || options.reset === undefined || options.reset === true) {
+				_self.reset();
+			}
 			return $state.go(state, params, {
-				reload : true,
+				reload : options && options.reload !== undefined ? options.reload : false,
 				cache  : false
 			});
 		}
 	};
 
 	_self.redirect = function (state, params) {
-		if ($state.current.name !== state) {
+		var href = $state.href(state, params);
+
+		if (_self.href !== href) {
+			_self.href = href;
 			_self.reset();
 		}
 		return $state.go(state, params, {

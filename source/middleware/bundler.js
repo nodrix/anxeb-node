@@ -10,19 +10,24 @@ module.exports = function (service) {
 	_self.compute = new ComputedBundler(_service);
 
 	var getControllers = function () {
-		var result = ["<!-- Client Controllers -->"];
+		if (_service.settings.service.paths.controllers) {
+			var result = ["<!-- Client Controllers -->"];
 
-		utils.file.list({
-			path     : _service.locate.path(_service.settings.service.paths.controllers),
-			endsWith : '.js'
-		}).map(function (file) {
-			result.push('<script src="/anxeb/controller/' + file + '"></script>');
-		});
+			utils.file.list({
+				path       : _service.locate.path(_service.settings.service.paths.controllers),
+				endsWith   : '.js',
+				subfolders : true
+			}).map(function (file) {
+				result.push('<script src="/anxeb/controller/' + file + '"></script>');
+			});
 
-		if (result.length === 1) {
-			return "";
+			if (result.length === 1) {
+				return "";
+			}
+			return result.join("\n") + "\n";
+		} else {
+			return '';
 		}
-		return result.join("\n") + "\n";
 	};
 
 	var getInit = function () {

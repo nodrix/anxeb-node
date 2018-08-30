@@ -21,6 +21,8 @@ module.exports = function (service) {
 				result.push('\t\t.state("' + _state.link + '", { ');
 				result.push('\t\t\tcache: false,');
 				result.push('\t\t\turl: "' + _state.url + '",');
+				result.push('\t\t\treloadOnSearch: false,');
+
 				if (_state.data) {
 					result.push('\t\t\tdata: ' + JSON.stringify(_state.data) + ',');
 				}

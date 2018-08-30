@@ -7,12 +7,14 @@ var Route = require("../middleware/route");
 var Action = function (service, params, parent) {
 	var _self = this;
 	_self.service = service;
+	_self.settings = _self.service.settings.service.actions || { prefix : '' };
+
 	_self.parent = parent || null;
 	_self.methods = params.methods;
 	_self.childs = {};
 
 	_self.name = params.name;
-	_self.url = params.url ? params.url : "/" + _self.name;
+	_self.url = _self.settings.prefix + (params.url ? params.url : "/" + _self.name);
 	_self.path = parent ? utils.join(parent.path, _self.url) : _self.url;
 	_self.access = params.access || (parent ? parent.access : Enums.RouteAccess.Public);
 	_self.timeout = params.timeout || (parent ? parent.timeout : 5000);

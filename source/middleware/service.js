@@ -434,6 +434,12 @@ module.exports = function (server, params) {
 			setupConfiguration();
 		};
 
+		_self.fetch = {
+			modules : function (modulesPath) {
+				return utils.file.modules(path.join(_self.server.settings.paths.source, modulesPath));
+			}
+		};
+
 		if (_self.configuration) {
 			_defaultConfiguration = utils.copy(_self.configuration);
 			var configFileName = path.join('config', _self.key + '.json');

@@ -1,6 +1,12 @@
 'use strict';
 
 module.exports = function () {
+	if (!String.prototype.isObjectId) {
+		String.prototype.isObjectId = function padStart() {
+			return this.match(/^[0-9a-fA-F]{24}$/);
+		};
+	}
+
 	if (!String.prototype.padStart) {
 		String.prototype.padStart = function padStart(targetLength, padString) {
 			targetLength = targetLength >> 0; //floor if number or convert non-number to 0;

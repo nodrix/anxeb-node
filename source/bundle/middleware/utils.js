@@ -39,7 +39,7 @@ anxeb.utils = {
 	},
 	fill                   : function (obj, source) {
 		for (var i in source) {
-			if (obj[i]) {
+			if (obj[i] !== undefined) {
 				obj[i] = source[i];
 			}
 		}
