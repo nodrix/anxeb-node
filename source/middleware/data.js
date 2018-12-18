@@ -24,15 +24,16 @@ module.exports = function (service) {
 			if (params.childs) {
 				for (var c in params.childs) {
 					var child_params = params.childs[c];
-					var child_schema = new Schema(child_params);
+					var child_schema = new Schema(child_params, { usePushEach: true });
 					var child_name = params.name + '_' + c;
-					_self.models[child_name] = _self.context.model(child_name, new Schema(child_schema));
+					_self.models[child_name] = _self.context.model(child_name, new Schema(child_schema, { usePushEach: true }));
 					params.childs[c] = child_schema;
 				}
 			}
 
 			var options = {
-				collection : params.collection || params.name
+				collection : params.collection || params.name,
+				usePushEach: true
 			};
 
 			if (params.options) {
