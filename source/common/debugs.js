@@ -3,8 +3,12 @@
 var Enums = require("../middleware/enums");
 
 module.exports = {
+	server_initializing        : {
+		message : 'Anxeb server [M1] [M0] initializing...',
+		type    : Enums.EventType.Debug
+	},
 	server_started             : {
-		message : 'Anxeb server [M1] [M0] started on [date] at [time].',
+		message : 'Anxeb server online at [date] at [time].',
 		type    : Enums.EventType.Debug
 	},
 	service_instance_starting  : {

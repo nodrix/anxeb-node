@@ -43,5 +43,17 @@ anxeb.utils = {
 				obj[i] = source[i];
 			}
 		}
+	},
+	toKeyValueArray        : function (objects) {
+		var result = [];
+
+		for (var key in objects) {
+			result.push({
+				key   : key,
+				value : objects[key]
+			})
+		}
+
+		return result;
 	}
 };

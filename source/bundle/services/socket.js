@@ -3,6 +3,9 @@
 anxeb.app.service('socket', function ($rootScope) {
 	var socket = io.connect();
 	return {
+		remove       : function (eventName) {
+			return socket.removeAllListeners(eventName);
+		},
 		emit         : function (eventName, data, callback) {
 			socket.emit(eventName, data, function () {
 				var args = arguments;

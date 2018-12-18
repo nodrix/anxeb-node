@@ -23,7 +23,7 @@ module.exports = function (params) {
 
 	params.version = params.version || require(params.settings.paths.root + '/package.json').version;
 	_self.version = params.version;
-	_self.instances = [];
+	_self.instances = {};
 	_self.settings = params.settings;
 	_self.paths = _self.settings.paths;
 
@@ -33,7 +33,8 @@ module.exports = function (params) {
 		identifier : params.name,
 		settings   : params.settings.log
 	});
-	_self.log.debug.server_started.args('v' + params.version, params.description, params.name, params.key).print();
+	_self.log.debug.server_initializing.args('v' + params.version, params.description, params.name, params.key).print();
+
 	var _handleError = function (err) {
 		if (err.event === undefined) {
 			_self.log.exception.unhandled_exception.args(err).print();
@@ -56,7 +57,7 @@ module.exports = function (params) {
 
 	_self.include = {
 		instance : function (params) {
-			_self.instances.push(new Service(_self, params));
+			_self.instances[params.key] = new Service(_self, params);
 		}
 	};
 
@@ -75,6 +76,13 @@ module.exports = function (params) {
 		for (var i in _self.instances) {
 			addService(_self.instances[i]);
 		}
-		async.waterfall(services);
+		async.waterfall(services, function (err) {
+			if (err) {
+				_handleError(err);
+			} else {
+				console.log('');
+				_self.log.debug.server_started.args('v' + params.version, params.description, params.name, params.key).print();
+			}
+		});
 	};
 };

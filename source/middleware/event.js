@@ -42,6 +42,7 @@ var Event = function (params) {
 
 	_self.args = function () {
 		var items = arguments.length > 0 && arguments[0].toString() === "[object Arguments]" ? arguments[0] : arguments;
+
 		for (var i in items) {
 			var value = items[i];
 
@@ -49,10 +50,13 @@ var Event = function (params) {
 
 				if (value && value.message) {
 					_self.error = value;
-					if (_self.error.message) {
-						_self.message = _self.message.replace("[inner]", value.message);
-					} else {
-						_self.message = _self.message.replace("[inner]", '');
+
+					if (_self.message.indexOf('[inner]') > -1) {
+						if (_self.error.message) {
+							_self.message = _self.message.replace("[inner]", value.message);
+						} else {
+							_self.message = _self.message.replace("[inner]", '');
+						}
 					}
 				} else {
 					if (value !== undefined && value !== null) {
@@ -79,7 +83,7 @@ var Event = function (params) {
 		var logText = "";
 		var clcText = "";
 
-		var inner = _self.error && _self.error.event !== this ? _self.error : null;
+		var inner = _self.error && (_self.error.ever === undefined || _self.error.event !== this) ? _self.error : null;
 
 		if (_self.type === Enums.EventType.Debug) {
 			clcText += clc.whiteBright(_self.title) + " > " + clc[_self.color][_self.style](_self.message);

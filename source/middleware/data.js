@@ -24,10 +24,31 @@ module.exports = function (service) {
 			if (params.childs) {
 				for (var c in params.childs) {
 					var child_params = params.childs[c];
-					var child_schema = new Schema(child_params);
-					var child_name = params.name + '_' + c;
-					_self.models[child_name] = _self.context.model(child_name, new Schema(child_schema));
-					params.childs[c] = child_schema;
+
+					var child_options = {
+						collection : child_params.collection || child_params.name
+					};
+
+					if (child_params.options) {
+						child_options = child_params.options;
+						child_options.collection = child_params.collection || child_params.options.collection || child_params.name
+					}
+
+					var child_schema = new Schema(child_params.schema, child_options);
+
+					if (child_params.virtuals) {
+						for (var v in child_params.virtuals) {
+							child_schema.virtual(v).get(child_params.virtuals[v]);
+						}
+					}
+
+					if (child_params.methods) {
+						for (var m in child_params.methods) {
+							child_schema.method(m, child_params.methods[m]);
+						}
+					}
+
+					_self.models[params.name + child_params.name] = _self.context.model(params.name + child_params.name, child_schema);
 				}
 			}
 
