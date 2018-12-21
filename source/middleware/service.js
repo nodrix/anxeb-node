@@ -24,7 +24,7 @@ var cors = require("cors")();
 var session = require("express-session");
 var RedisStore = require('connect-redis')(session);
 var favicon = require('serve-favicon');
-var hbs = require('express-hbs');
+var HBS = require('express-hbs');
 var Handlebars = require('handlebars');
 var sio = require("socket.io");
 var schedule = require("node-schedule");
@@ -34,6 +34,8 @@ var fileUpload = require('express-fileupload');
 module.exports = function (server, params) {
 	var _self = this;
 	var _defaultConfiguration = {};
+	var _handlebars = Handlebars.create();
+	var _hbs = HBS.create();
 
 	_self.log = new Log();
 
@@ -195,8 +197,8 @@ module.exports = function (server, params) {
 		_self.express.set('views', _self.locate.path(_self.settings.service.paths.templates.views));
 	}
 
-	_self.express.engine('hbs', hbs.express4({
-		handlebars  : Handlebars,
+	_self.express.engine('hbs', _hbs.express4({
+		handlebars  : _handlebars,
 		extname     : '.hbs',
 		partialsDir : _self.settings.service.paths.templates ? _self.locate.path(_self.settings.service.paths.templates.partials) : null,
 		layoutsDir  : _self.settings.service.paths.templates ? _self.locate.path(_self.settings.service.paths.templates.containers) : null,
@@ -351,19 +353,19 @@ module.exports = function (server, params) {
 	};
 
 	_self.start = function (callback) {
-		Handlebars.registerPartial('anxeb', _self.bundler.anxeb());
-		Handlebars.registerPartial('anxeb.init', _self.bundler.init());
-		Handlebars.registerPartial('anxeb.middleware', _self.bundler.middleware());
-		Handlebars.registerPartial('anxeb.controllers', _self.bundler.controllers());
+		_handlebars.registerPartial('anxeb', _self.bundler.anxeb());
+		_handlebars.registerPartial('anxeb.init', _self.bundler.init());
+		_handlebars.registerPartial('anxeb.middleware', _self.bundler.middleware());
+		_handlebars.registerPartial('anxeb.controllers', _self.bundler.controllers());
 
-		Handlebars.registerHelper('part', function (name) {
+		_handlebars.registerHelper('part', function (name) {
 			var blocks = this._blocks;
 			var content = blocks && blocks[name];
 
 			return content ? content.join('\n') : null;
 		});
 
-		Handlebars.registerHelper('partContent', function (name, options) {
+		_handlebars.registerHelper('partContent', function (name, options) {
 			var blocks = this._blocks || (this._blocks = {}),
 				block = blocks[name] || (blocks[name] = []);
 
