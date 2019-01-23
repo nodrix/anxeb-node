@@ -110,7 +110,7 @@ anxeb.app.service("request", function ($http, $rootScope) {
 				return;
 			}
 
-			if (_request.options && _request.options.bearer) {
+			if (_request.options && _request.options.bearer !== undefined) {
 				if (!_request.headers) {
 					_request.headers = {};
 				}
