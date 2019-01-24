@@ -13,7 +13,12 @@ anxeb.app.run(function ($rootScope, request, session, page) {
 	$rootScope.onAsyncRequestFailed = function (req, err) {
 		if (err.data) {
 			var error = typeof(err.data) === "string" ? JSON.parse(err.data) : err.data;
-			page.notifications.push(new anxeb.Exception(error));
+
+			var clientOptions = err.config && err.config.headers ? err.config.headers.ClientOptions : null;
+			if (clientOptions && clientOptions.indexOf('HIDE_EXCEPTION') > -1) {
+			} else {
+				page.notifications.push(new anxeb.Exception(error));
+			}
 			if (error.code === 401 || error.code === 6013) {
 				page.goto.login();
 			}

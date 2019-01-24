@@ -117,6 +117,15 @@ anxeb.app.service("request", function ($http, $rootScope) {
 				_request.headers["Authorization"] = "Bearer " + _request.options.bearer
 			}
 
+			if (_request.options && _request.options.client !== undefined) {
+				if (!_request.headers) {
+					_request.headers = {};
+				}
+				_request.headers['ClientOptions'] = _request.options.client;
+			} else if (_request.headers && _request.headers["ClientOptions"]) {
+				_request.headers["ClientOptions"] = undefined;
+			}
+
 			$http({
 				method  : _request.method,
 				url     : _request.url,
