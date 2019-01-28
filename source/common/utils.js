@@ -157,7 +157,7 @@ var utils = {
 	join                 : path.join,
 	normalize            : {
 		url : function (value) {
-			if (urlPath) {
+			if (value) {
 				return value.replaceAll('\\', '/');
 			} else {
 				return '/';
