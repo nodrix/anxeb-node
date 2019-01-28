@@ -155,6 +155,15 @@ var utils = {
 		exists  : fs.existsSync
 	},
 	join                 : path.join,
+	normalize            : {
+		url : function (value) {
+			if (urlPath) {
+				return value.replaceAll('\\', '/');
+			} else {
+				return '/';
+			}
+		}
+	},
 	fillCommonParameters : function (value) {
 		var result = value;
 		result = result.replace("[node_version]", process.version);
@@ -288,7 +297,7 @@ var utils = {
 	canAccess            : function (claims, path, method) {
 		for (var c = 0; c < claims.length; c++) {
 			var claim = claims[c];
-			if (typeof(claim) === 'string') {
+			if (typeof (claim) === 'string') {
 				if (claim.indexOf(path) > -1) {
 					return true;
 				}

@@ -14,8 +14,8 @@ var Action = function (service, params, parent) {
 	_self.childs = {};
 
 	_self.name = params.name;
-	_self.url = _self.settings.prefix + (params.url ? params.url : "/" + _self.name);
-	_self.path = parent ? utils.join(parent.path, _self.url) : _self.url;
+	_self.url = utils.normalize.url(_self.settings.prefix + (params.url ? params.url : '/' + _self.name));
+	_self.path = utils.normalize.url(parent ? utils.join(parent.path, _self.url) : _self.url);
 	_self.access = params.access || (parent ? parent.access : Enums.RouteAccess.Public);
 	_self.timeout = params.timeout || (parent ? parent.timeout : 5000);
 
