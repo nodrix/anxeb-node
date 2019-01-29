@@ -6,6 +6,7 @@ anxeb.app.service("page", function ($rootScope, $state, $location, $stateParams,
 	_self.title = $state.current.data ? $state.current.data.title : null;
 	_self.icon = $state.current.data ? $state.current.data.icon : null;
 	_self.menu = $state.current.menu ? $state.current.data.menu : {};
+	_self.tabs = $state.current.tabs ? $state.current.data.tabs : {};
 	_self.href = null;
 	_self.settings = {
 		notifications : {
@@ -21,6 +22,7 @@ anxeb.app.service("page", function ($rootScope, $state, $location, $stateParams,
 		_self.key = params.key;
 		_self.icon = params.icon;
 		_self.menu = params.menu ? params.menu : {};
+		_self.tabs = params.tabs ? params.tabs : {};
 		_self.settings = params.settings || _self.settings;
 	};
 
@@ -28,6 +30,7 @@ anxeb.app.service("page", function ($rootScope, $state, $location, $stateParams,
 		_self.title = null;
 		_self.icon = null;
 		_self.menu = null;
+		_self.tabs = null;
 		_self.scopes = {};
 		_self.notifications.clear();
 	};
