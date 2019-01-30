@@ -29,6 +29,7 @@ module.exports = function (service) {
 				if (_state.controller) {
 					result.push('\t\t\tcontroller: "' + _state.controller.toPascalCase() + 'Controller",');
 				}
+				result.push('\t\t\tparams: { query : null },');
 				result.push('\t\t\ttemplateUrl: function ($stateParams) {');
 				result.push('\t\t\t\treturn anxeb.utils.getParametersFromState($stateParams, "/anxeb/view/' + _state.view + '");');
 				result.push('\t\t\t},');

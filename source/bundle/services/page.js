@@ -35,7 +35,7 @@ anxeb.app.service("page", function ($rootScope, $state, $location, $stateParams,
 		_self.notifications.clear();
 	};
 
-	_self.load = function (state, params, options) {
+	_self.load = function (state, params, options, callback) {
 		var href = $state.href(state, params);
 
 		if (_self.href !== href) {
@@ -43,10 +43,15 @@ anxeb.app.service("page", function ($rootScope, $state, $location, $stateParams,
 			if (!options || options.reset === undefined || options.reset === true) {
 				_self.reset();
 			}
+
 			return $state.go(state, params, {
 				reload : options && options.reload !== undefined ? options.reload : false,
 				cache  : false
-			});
+			}).then(callback);
+		} else {
+			if (callback) {
+				callback();
+			}
 		}
 	};
 
