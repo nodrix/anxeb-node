@@ -47,9 +47,8 @@ module.exports = function (service) {
 							child_schema.method(m, child_params.methods[m]);
 
 							if (!Array.prototype[m]) {
-								Array.prototype[m] = function () {
-									var args = arguments.length ? arguments : undefined;
-									return this.map(function (value) { return value && value[m] ? value[m](args) : value; });
+								Array.prototype[m] = function (params) {
+									return this.map(function (value) { return value && value[m] ? value[m](params) : value; });
 								};
 							}
 						}
@@ -81,9 +80,8 @@ module.exports = function (service) {
 					schema.method(m, params.methods[m]);
 
 					if (!Array.prototype[m]) {
-						Array.prototype[m] = function () {
-							var args = arguments.length ? arguments : undefined;
-							return this.map(function (value) { return value && value[m] ? value[m](args) : value; });
+						Array.prototype[m] = function (params) {
+							return this.map(function (value) { return value && value[m] ? value[m](params) : value; });
 						};
 					}
 				}
