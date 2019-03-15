@@ -1,4 +1,4 @@
-# Nodrix Anxeb v1.0.1
+# Nodrix Anxeb v1.x
 Highly scalable NodeJS web application framework integrating top of the current web framework technologies available such as:
 
 - Socket.io

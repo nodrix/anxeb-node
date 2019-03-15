@@ -134,12 +134,18 @@ module.exports = function (server, params) {
 						}
 					}
 
-					Promise.all(starters).then(function () {
+					if (starters.length) {
+						Promise.all(starters).then(function () {
+							resolve();
+						}).catch(function (err) {
+							_self.log.exception.extension_startup_failed.args(err.key || 'unknown', err).print();
+							reject();
+						})
+					} else {
 						resolve();
-					}).catch(function (err) {
-						_self.log.exception.extension_startup_failed.args(err.key || 'unknown', err).print();
-						reject();
-					})
+					}
+				} else {
+					resolve();
 				}
 			}).catch(reject);
 		});
