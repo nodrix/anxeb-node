@@ -1,11 +1,11 @@
-# Nodrix Anxeb
-Highly scalable NodeJs web application framework.
+# Nodrix Anxeb v1.0.0
+Highly scalable NodeJS web application framework integrating top of the current web framework technologies available such as:
 
-- AngularJS
-- NodeJS
-- MongoDB
 - Socket.io
+- ExpressJS
 - HandlebarsJS
 - Node Schedule
-- CLI Color Debugger
-- JWT Integration
+- Bluebird
+- Jason Web Token (JWT)
+
+Please check out the examples folder (/examples). We will upload more examples and a complete documentation in the near future.

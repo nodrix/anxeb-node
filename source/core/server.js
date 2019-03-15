@@ -1,88 +1,145 @@
 'use strict';
 
-var path = require('path');
-var utils = require('../common/utils');
-var Log = require("../middleware/log");
-var Service = require('../middleware/service');
-var async = require('async');
+const Log = require('../middleware/log').instance;
+const Locator = require('../common/locator').instance;
+const Service = require('./service');
+const utils = require('../common/utils');
 
 module.exports = function (params) {
-	var _self = this;
+	let _self = this;
+	let _version = require('../../package.json').version;
 
-	_self.log = new Log(true);
+	_self.log = new Log();
+	_self.log.require({
+		from  : params,
+		items : [
+			'name',
+			'key',
+			'settings.root'
+		]
+	}, 'server');
 
-	if (!params.name) {
-		_self.log.exception.missing_param_name.exit();
-	}
+	utils.internal.parameters.process.server(params);
 
-	if (!params.settings || !params.settings.paths) {
-		_self.log.exception.missing_param_paths.exit();
-	}
+	_self.log.init(params.settings.log);
+	_self.log.separator();
 
-	utils.fillServerParameters(params);
-
-	params.version = params.version || require(params.settings.paths.root + '/package.json').version;
-	_self.version = params.version;
-	_self.instances = {};
+	_self.name = params.name;
+	_self.description = params.description;
+	_self.key = params.key;
 	_self.settings = params.settings;
-	_self.paths = _self.settings.paths;
+	_self.structure = params.structure;
+	_self.extensions = params.extensions;
+	_self.locate = new Locator(_self.settings.root, _self.structure);
 
-	params.settings.log.debug = params.settings.log.debug !== undefined ? params.settings.log.debug : (_self.settings.debug !== undefined ? _self.settings.debug : false);
+	let _baseServices = params.services;
+	let _packageFile = _self.locate.item('/package.json');
 
-	_self.log.start({
-		identifier : params.name,
-		settings   : params.settings.log
-	});
-	_self.log.debug.server_initializing.args('v' + params.version, params.description, params.name, params.key).print();
+	if (utils.general.file.exists(_packageFile)) {
+		_self.version = 'v' + require(_self.locate.item('/package.json')).version || null;
+	}
+	_self.services = {};
+	let _services = [];
 
-	var _handleError = function (err) {
-		if (err.event === undefined) {
-			_self.log.exception.unhandled_exception.args(err).print();
-		} else {
-			err.event.args(err).print();
+	_self.log.debug.server_initializing.args(_version, _self.description + (_self.version ? ' ' + _self.version : ''), _self.name, _self.key).print();
+
+	_self.include = {
+		service : function (params, name) {
+			let service = new Service(_self, params);
+			if (service.active === undefined || service.active === true) {
+				_self.services[params.key || name] = service;
+				_services.push(service.start);
+			}
 		}
+	};
 
-		if (err.exit) {
+	const handleException = function (err, cause) {
+		if (err) {
+			if (err.event === undefined) {
+				_self.log.exception.unhandled_exception.args(err).print();
+			} else {
+				err.event.args(err).print();
+			}
+
+			if (err.exit) {
+				process.exit();
+			}
+		} else {
+			_self.log.exception.unhandled_exception.args('', {
+				message : cause
+			}).print();
 			process.exit();
 		}
 	};
 
 	process.on('unhandledRejection', function (err) {
-		_handleError(err);
+		handleException(err, 'Unhandled Rejection');
 	});
 
 	process.on('uncaughtException', function (err) {
-		_handleError(err);
-	});
-
-	_self.include = {
-		instance : function (params) {
-			_self.instances[params.key] = new Service(_self, params);
-		}
-	};
-
-	utils.file.modules(params.settings.paths.instances).map(function (instance) {
-		_self.include.instance(instance.module);
+		handleException(err, 'Uncaught Exception');
 	});
 
 	_self.start = function () {
-		var services = [];
+		if (_services.length) {
+			let index = 0;
 
-		var addService = function (service) {
-			if (service.active) {
-				services.push(service.start);
-			}
-		};
-		for (var i in _self.instances) {
-			addService(_self.instances[i]);
+			let next = function () {
+				if (index < _services.length) {
+					_services[index++]().then(function () {
+						next();
+					}).catch(function (err) {
+						handleException(err, 'Context Error');
+					});
+				} else {
+					_self.log.break();
+					_self.log.debug.server_started.args('v' + _self.version, _self.description, _self.name, _self.key).print();
+				}
+			};
+
+			next();
+		} else {
+			_self.log.exception.no_service_included.print();
+			_self.log.debug.server_ended.args('v' + _self.version, _self.description, _self.name, _self.key).print();
 		}
-		async.waterfall(services, function (err) {
-			if (err) {
-				_handleError(err);
-			} else {
-				console.log('');
-				_self.log.debug.server_started.args('v' + params.version, params.description, params.name, params.key).print();
-			}
-		});
 	};
+
+	_self.init = function () {
+		if (_baseServices) {
+			for (let s in _baseServices) {
+				_self.include.service(_baseServices[s], s);
+			}
+		}
+
+		try {
+			if (_self.structure && _self.structure.services && typeof _self.structure.services === 'string') {
+				utils.internal.modules.list(_self.locate.services()).map(function (service) {
+					_self.include.service(service.module);
+				});
+			}
+
+			if (_self.extensions) {
+				for (let key in _self.extensions) {
+					let extension = _self.extensions[key];
+					if (extension.name && extension.version && extension.init) {
+						try {
+							extension.instance = new extension.init(_self);
+							_self.log.debug.extension_loaded.args(extension.description, extension.name, extension.version ? 'v' + extension.version : '').print();
+						} catch (err) {
+							_self.log.exception.extension_init_failed.args(key, err).print();
+						}
+					}
+				}
+			}
+		} catch (err) {
+			if (err.code === 4) {
+				_self.log.exception.modules_path_not_found.args(err.path, 'services').throw();
+			} else {
+				_self.log.exception.modules_load_exception.args('services', err).throw();
+			}
+		}
+	};
+
+	_self.init();
+
 };
