@@ -53,7 +53,6 @@ module.exports = {
 
 		_self.include = function (meta) {
 			_self.meta = meta;
-
 			return _self;
 		};
 
@@ -277,7 +276,7 @@ module.exports = {
 			err.inner = _self.error;
 			err.event = _self;
 			err.exit = params !== undefined ? params.exit || false : false;
-			err.meta = params !== undefined ? params.meta : _self.meta || null;
+			err.meta = params && params.meta ? params.meta : _self.meta;
 			return err;
 		};
 

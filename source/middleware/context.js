@@ -43,7 +43,9 @@ module.exports = {
 				_self.route.context.response(_self.req, _self.res, payload);
 			}
 
-			_self.res.set('Identified', _self.req.session && _self.req.session.bearer !== null && _self.req.session.bearer !== undefined);
+			if (_self.req.session && _self.req.session.bearer !== null && _self.req.session.bearer !== undefined) {
+				_self.res.set('Session-Token', _self.req.session.bearer);
+			}
 		};
 
 		_self.render = function (payload) {
@@ -121,18 +123,32 @@ module.exports = {
 		};
 
 		_self.sign = function (payload, options) {
-			this.send(_self.service.security.sign(payload, options));
+			return _self.service.security.sign(payload, options);
 		};
 
 		_self.auth = function (payload, options) {
-			let token = _self.service.security.sign(payload, options);
+			let token = _self.sign(payload, options);
 			_self.req.session.bearer = { token : token };
 			return token;
+		};
+
+		_self.login = function () {
+			if (_self.req.headers.authorization) {
+				_self.req.session.bearer = {
+					token : _self.req.headers.authorization.substring(7)
+				};
+				return _self.req.session.bearer;
+			} else {
+				return null;
+			}
 		};
 
 		_self.logout = function () {
 			if (_self.req.session) {
 				_self.req.session.bearer = undefined;
+				return true;
+			} else {
+				return false;
 			}
 		};
 	}

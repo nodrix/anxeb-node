@@ -100,19 +100,39 @@ module.exports = {
 			return bearer;
 		};
 
-		_self.canAccess = function (claims, path, method) {
-			for (let c = 0; c < claims.length; c++) {
-				let claim = claims[c];
+		_self.canAccess = function (params) {
+			for (let c = 0; c < params.identity.claims.length; c++) {
+				let claim = params.identity.claims[c];
 				if (typeof (claim) === 'string') {
-					if (claim.indexOf(path) > -1) {
+					if (claim.indexOf(params.request.path) > -1) {
 						return true;
 					}
 				} else {
-					var starts = claim.path[claim.path.length - 1] === '*' ? path.startsWith(claim.path.substring(0, claim.path.length - 1)) : false;
-					var same = claim.path === path;
+					var starts = claim.path[claim.path.length - 1] === '*' ? params.request.path.startsWith(claim.path.substring(0, claim.path.length - 1)) : false;
+					var same = claim.path === params.request.path;
 
-					if ((claim.path === '*' || starts || same) && (claim.method === '*' || method.toLowerCase() === claim.method.toLowerCase())) {
+					if ((claim.path === '*' || starts || same) && (claim.method === '*' || params.request.method.toLowerCase() === claim.method.toLowerCase())) {
 						return true;
+					}
+				}
+			}
+
+			if (params.identity.roles && params.identity.roles.length) {
+				if (params.identity.roles.includes('*') === true) {
+					return true;
+				}
+			}
+
+			if (params.request.roles && params.request.roles.length > 0) {
+				for (let r = 0; r < params.request.roles.length; r++) {
+					let requestRole = params.request.roles[r];
+					if (requestRole === '*') {
+						return true;
+					}
+					if (params.identity.roles && params.identity.roles.length) {
+						if (params.identity.roles.includes(requestRole) === true) {
+							return true;
+						}
 					}
 				}
 			}
@@ -125,7 +145,17 @@ module.exports = {
 					if (bearer && bearer.token) {
 						if (_self.keys) {
 							_self.keys.verify(bearer.token).then(function (auth) {
-								if (!auth.body.access || !_self.canAccess(auth.body.access, params.path, req.method)) {
+								if (!auth.body.roles || !auth.body.claims || !_self.canAccess({
+									identity : {
+										claims : auth.body.claims,
+										roles  : auth.body.roles
+									},
+									request  : {
+										roles  : params.roles,
+										path   : params.path,
+										method : req.method
+									}
+								})) {
 									_self.service.log.exception.unauthorized_access.args(req.method, req.url).throw({ next : next });
 								} else {
 									resolve();

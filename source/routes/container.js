@@ -44,7 +44,7 @@ module.exports = function (routing, settings) {
 
 			_self.security.checkpoint({
 				access : containerAccess,
-				path   : '/' + requestedContainer
+				path   : utils.general.path.join(_self.path, requestedContainer)
 			}, req, res, next).then(function () {
 				let fullPath = utils.general.path.join(_self.service.renderer.settings.templates.containers, requestedContainer) + _self.service.renderer.settings.extension;
 				if (utils.general.file.exists(fullPath)) {

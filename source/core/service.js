@@ -77,6 +77,7 @@ module.exports = function (server, params) {
 	_self.express = express();
 	_self.application = {};
 	_self.extensions = params.extensions;
+	_self.client = _self.settings ? _self.settings.client : null;
 	_self.locate = _self.server.locate;
 	_self.security = new Security(_self, _self.settings.security);
 	_self.storage = new Storage(_self, _self.settings.storage);

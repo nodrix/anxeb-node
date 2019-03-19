@@ -15,6 +15,7 @@ module.exports = function (routing, settings) {
 		var result = [];
 		result.push('var anxeb = ' + utils.general.data.format({
 			settings : {
+				client  : _self.service.client,
 				routing : {
 					defaults  : {
 						exception    : _self.service.routing.defaults.routes.exception ? _self.service.routing.defaults.routes.exception.path : null,

@@ -31,6 +31,7 @@ const Route = {
 		_self.path = utils.general.url.normalize(parent ? utils.general.path.join(parent.path, _self.url) : _self.url);
 		_self.link = utils.general.url.normalize(parent ? utils.general.path.join(parent.link, _self.url) : utils.general.path.join('/', _self.container || '/', _self.url));
 		_self.access = params.access || (parent ? parent.access : Route.access.public);
+		_self.roles = params.roles || (parent ? parent.roles : null);
 		_self.timeout = params.timeout || (parent ? parent.timeout : 5000);
 		_self.tag = params.tag || (parent ? parent.tag : null);
 		_self.context = params.context;
@@ -60,16 +61,17 @@ const Route = {
 
 		_self.setAlias = function (path) {
 			if (path !== _self.path) {
-				setupMethods(path, _self.access);
+				setupMethods(path, _self.access, _self.roles);
 			}
 		};
 
-		const getBase = function (path, access) {
+		const getBase = function (path, access, roles) {
 			return {
 				route  : _self.routing.mount.route(path).all(function (req, res, next) {
 					_self.service.security.checkpoint({
 						access : access,
-						path   : path
+						path   : path,
+						roles  : roles
 					}, req, res, next).then(next);
 				}),
 				path   : path,
@@ -77,9 +79,9 @@ const Route = {
 			}
 		};
 
-		const setupMethods = function (path, access) {
+		const setupMethods = function (path, access, roles) {
 			if (_methods) {
-				let base = getBase(path, access);
+				let base = getBase(path, access, roles);
 
 				if (_methods.get) {
 					_self.methods.get = new Method(_self, base, _methods.get, methodTypes.get);
@@ -95,7 +97,7 @@ const Route = {
 			}
 		};
 
-		setupMethods(_self.path, _self.access);
+		setupMethods(_self.path, _self.access, _self.roles);
 
 		if (_self.alias) {
 			_self.setAlias(_self.alias);

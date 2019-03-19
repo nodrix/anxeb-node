@@ -1,9 +1,8 @@
 'use strict';
 
-const utils = require('../common/utils');
 const Router = require('express').Router;
 const bodyParser = require('body-parser');
-const cors = require('cors')();
+const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const Stack = require('../common/stack').instance;
 const eventTypes = require('../middleware/event').types;
@@ -12,7 +11,6 @@ const Route = require('./route').instance;
 const ViewRoute = require('../routes/view');
 const ContainerRoute = require('../routes/container');
 const BundleRoute = require('../routes/bundle');
-const accessType = require('./route').access;
 
 module.exports = {
 	instance : function (service, settings) {
@@ -125,7 +123,7 @@ module.exports = {
 		};
 
 		_self.retrieve = {
-			byView            : function (requestedView, childs) {
+			byView : function (requestedView, childs) {
 				var iroutes = childs || _self.routes;
 				for (let r in iroutes) {
 					let item = iroutes[r];
@@ -144,35 +142,48 @@ module.exports = {
 			}
 		};
 
-		_self.service.express.use(bodyParser.json(_self.settings.parsers && _self.settings.parsers.json ? _self.settings.parsers.json : {
-			limit : '50mb'
-		}));
+		if (_self.settings.parsers) {
+			if (_self.settings.parsers.json !== undefined && _self.settings.parsers.json !== false) {
+				_self.service.express.use(bodyParser.json(_self.settings.parsers.json === true ? {
+					limit : '50mb'
+				} : _self.settings.parsers.json));
+			}
 
-		_self.service.express.use(bodyParser.urlencoded(_self.settings.parsers && _self.settings.parsers.url ? _self.settings.parsers.url : {
-			limit    : '50mb',
-			extended : true
-		}));
+			if (_self.settings.parsers.url !== undefined && _self.settings.parsers.url !== false) {
+				_self.service.express.use(bodyParser.urlencoded(_self.settings.parsers.url === true ? {
+					limit    : '50mb',
+					extended : true
+				} : _self.settings.parsers.url));
+			}
 
-		_self.service.express.use(bodyParser.raw(_self.settings.parsers && _self.settings.parsers.raw ? _self.settings.parsers.raw : {
-			limit : '50mb'
-		}));
+			if (_self.settings.parsers.raw !== undefined && _self.settings.parsers.raw !== false) {
+				_self.service.express.use(bodyParser.raw(_self.settings.parsers.raw === true ? {
+					limit : '50mb'
+				} : _self.settings.parsers.raw));
+			}
 
-		_self.service.express.use(bodyParser.text(_self.settings.parsers && _self.settings.parsers.text ? _self.settings.parsers.text : {
-			limit : '50mb'
-		}));
+			if (_self.settings.parsers.text !== undefined && _self.settings.parsers.text !== false) {
+				_self.service.express.use(bodyParser.text(_self.settings.parsers.text === true ? {
+					limit : '50mb'
+				} : _self.settings.parsers.text));
+			}
+		}
 
-		_self.service.express.use(fileUpload(_self.settings.upload ? _self.settings.upload : {
-			limits       : { fileSize : 50 * 1024 * 1024 },
-			abortOnLimit : true
-		}));
+		if (_self.settings.upload !== undefined && (_self.settings.upload !== false)) {
+			_self.service.express.use(fileUpload(_self.settings.upload === true ? {
+				limits       : { fileSize : 50 * 1024 * 1024 },
+				abortOnLimit : true
+			} : _self.settings.upload));
+		}
 
-		_self.service.express.use(cors);
+		if (_self.settings.cors !== undefined && _self.settings.cors !== false) {
+			_self.service.express.use(_self.settings.cors === true ? cors() : cors(_self.settings.cors));
+		}
 
 		_self.service.express.use(_self.router);
 
 		_self.service.express.use(function (req, res, next) {
 			let err = _self.service.log.exception.page_not_found.args(req.url).print().toError();
-
 			_self.send.error(req, res, err, 404);
 		});
 

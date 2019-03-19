@@ -14,6 +14,14 @@ const utils = {
 		fs     : fs,
 		moment : moment,
 		data   : {
+			populate         : function (obj, source) {
+				var model = obj._doc || obj;
+				for (var i in model) {
+					if (source[i] !== undefined && i !== '_id') {
+						obj[i] = source[i];
+					}
+				}
+			},
 			copy             : function (obj) {
 				if (obj) {
 					return JSON.parse(JSON.stringify(obj));
@@ -147,6 +155,15 @@ const utils = {
 				return checkPath('');
 			},
 			exists : fs.existsSync
+		},
+		email  : {
+			validate : function (mail) {
+				if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
+					return true;
+				} else {
+					return false;
+				}
+			}
 		}
 	},
 	internal : {

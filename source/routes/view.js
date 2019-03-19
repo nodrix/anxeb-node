@@ -17,7 +17,8 @@ module.exports = function (routing, settings) {
 		if (route) {
 			_self.security.checkpoint({
 				access : route.access,
-				path   : route.path
+				path   : route.path,
+				roles  : route.roles
 			}, req, res, next).then(function () {
 				res.set('Route-Type', route.type);
 				res.set('Access-Type', route.access);

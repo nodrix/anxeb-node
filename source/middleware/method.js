@@ -51,7 +51,8 @@ module.exports = {
 		_self.dispatch = function (req, res, next, options) {
 			_self.service.security.checkpoint({
 				access : _self.base.access || _self.route.access,
-				path   : _self.base.path || _self.route.path
+				path   : _self.base.path || _self.route.path,
+				roles  : _self.base.role || _self.route.roles
 			}, req, res, next).then(function () {
 				dispatch(req, res, next, options);
 			});
