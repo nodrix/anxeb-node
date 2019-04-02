@@ -94,6 +94,7 @@ module.exports = function (params) {
 				} else {
 					_self.log.break();
 					_self.log.debug.server_started.args('v' + _self.version, _self.description, _self.name, _self.key).print();
+					_self.log.break();
 				}
 			};
 

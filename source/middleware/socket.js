@@ -4,6 +4,7 @@ const Client = require('./client').instance;
 const http = require('http');
 const sio = require('socket.io');
 const request = require('request');
+const ip = require('ip');
 const requestpn = require('request-promise-native');
 
 module.exports = {
@@ -13,7 +14,7 @@ module.exports = {
 
 		_self.service = service;
 		_self.settings = settings || {};
-		_self.host = _self.settings.host || '127.0.0.1';
+		_self.host = _self.settings.host || ip.address() || '127.0.0.1';
 		_self.port = _self.settings.port || '8080';
 		_self.protocol = _self.settings.protocol || 'http';
 		_self.callbacks = {};

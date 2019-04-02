@@ -7,9 +7,11 @@ const mkpath = require('mkpath');
 const URL = require('url-parse');
 const parameters = require('./parameters');
 const moment = require('moment');
+const ip = require('ip');
 
 const utils = {
 	general  : {
+		ip     : ip,
 		path   : path,
 		fs     : fs,
 		moment : moment,
