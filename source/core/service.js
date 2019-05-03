@@ -53,14 +53,38 @@ module.exports = function (server, params) {
 		},
 		files   : function (filesPath, options) {
 			if (filesPath) {
-				if (!utils.general.file.exists(filesPath)) {
-					_self.log.exception.parameter_file_not_found.args(filesPath).throw();
+				var getFiles = function (filesPath, options) {
+					var result = [];
+					if (!utils.general.file.exists(filesPath)) {
+						_self.log.exception.parameter_file_not_found.args(filesPath).throw();
+					} else {
+						var flist = utils.general.file.list(filesPath, options || {
+							subfolders : true,
+							endsWith   : '.js'
+						});
+						for (var f = 0; f < flist.length; f++) {
+							var fileName = flist[f];
+							result.push({
+								filePath : fileName,
+								rootPath : filesPath,
+								fullPath : utils.general.path.join(filesPath, fileName)
+							});
+						}
+					}
+					return result;
+				};
+
+				var result = [];
+				if (filesPath instanceof Array) {
+					for (var i = 0; i < filesPath.length; i++) {
+						var fpath = filesPath[i];
+						result = result.concat(getFiles(fpath, options));
+					}
 				} else {
-					return utils.general.file.list(filesPath, options || {
-						subfolders : true,
-						endsWith   : '.js'
-					});
+					result = getFiles(filesPath, options);
 				}
+
+				return result;
 			} else {
 				_self.log.exception.missing_parameter.args('filesPath', _self.key + '.fetch.files').throw();
 			}
@@ -120,10 +144,6 @@ module.exports = function (server, params) {
 
 			beginListening().then(function () {
 				_self.log.debug.service_initialized.args(_self.key).print();
-				if (_self.initialize) {
-					_self.initialize(_self, _self.application);
-				}
-
 				if (_self.extensions) {
 					var starters = [];
 					for (let key in _self.extensions) {
@@ -137,16 +157,20 @@ module.exports = function (server, params) {
 
 					if (starters.length) {
 						Promise.all(starters).then(function () {
+							_self.log.reload();
 							resolve();
 						}).catch(function (err) {
 							_self.log.exception.extension_startup_failed.args(err.key || 'unknown', err).print();
 							reject();
-						})
+						});
 					} else {
 						resolve();
 					}
 				} else {
 					resolve();
+				}
+				if (_self.initialize) {
+					_self.initialize(_self, _self.application);
 				}
 			}).catch(reject);
 		});

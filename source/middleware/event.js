@@ -277,6 +277,23 @@ module.exports = {
 			err.event = _self;
 			err.exit = params !== undefined ? params.exit || false : false;
 			err.meta = params && params.meta ? params.meta : _self.meta;
+
+			if (params != null && params.route) {
+				var route = params.route;
+				err.route = {
+					name       : route.name,
+					type       : route.type,
+					url        : route.url,
+					alias      : route.alias,
+					path       : route.path,
+					identifier : route.identifier,
+					access     : route.access,
+					roles      : route.roles,
+					owners     : route.owners,
+					timeout    : route.timeout,
+					tag        : route.tag,
+				};
+			}
 			return err;
 		};
 

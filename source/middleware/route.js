@@ -30,8 +30,10 @@ const Route = {
 		_self.alias = params.alias ? utils.general.url.normalize(params.alias) : null;
 		_self.path = utils.general.url.normalize(parent ? utils.general.path.join(parent.path, _self.url) : _self.url);
 		_self.link = utils.general.url.normalize(parent ? utils.general.path.join(parent.link, _self.url) : utils.general.path.join('/', _self.container || '/', _self.url));
+		_self.identifier = (_self.link.startsWith('/') ? _self.link.substr(1) : _self.link).replace('/', '.');
 		_self.access = params.access || (parent ? parent.access : Route.access.public);
 		_self.roles = params.roles || (parent ? parent.roles : null);
+		_self.owners = params.owners || (parent ? parent.owners : null);
 		_self.timeout = params.timeout || (parent ? parent.timeout : 5000);
 		_self.tag = params.tag || (parent ? parent.tag : null);
 		_self.context = params.context;
@@ -61,17 +63,18 @@ const Route = {
 
 		_self.setAlias = function (path) {
 			if (path !== _self.path) {
-				setupMethods(path, _self.access, _self.roles);
+				setupMethods(path, _self.access, _self.roles, _self.owners);
 			}
 		};
 
-		const getBase = function (path, access, roles) {
+		const getBase = function (path, access, roles, owners) {
 			return {
 				route  : _self.routing.mount.route(path).all(function (req, res, next) {
 					_self.service.security.checkpoint({
 						access : access,
 						path   : path,
-						roles  : roles
+						roles  : roles,
+						owners : owners
 					}, req, res, next).then(next);
 				}),
 				path   : path,
@@ -79,9 +82,9 @@ const Route = {
 			}
 		};
 
-		const setupMethods = function (path, access, roles) {
+		const setupMethods = function (path, access, roles, owners) {
 			if (_methods) {
-				let base = getBase(path, access, roles);
+				let base = getBase(path, access, roles, owners);
 
 				if (_methods.get) {
 					_self.methods.get = new Method(_self, base, _methods.get, methodTypes.get);
@@ -91,13 +94,17 @@ const Route = {
 					_self.methods.post = new Method(_self, base, _methods.post, methodTypes.post);
 				}
 
+				if (_methods.put) {
+					_self.methods.put = new Method(_self, base, _methods.put, methodTypes.put);
+				}
+
 				if (_methods.delete) {
 					_self.methods.delete = new Method(_self, base, _methods.delete, methodTypes.delete);
 				}
 			}
 		};
 
-		setupMethods(_self.path, _self.access, _self.roles);
+		setupMethods(_self.path, _self.access, _self.roles, _self.owners);
 
 		if (_self.alias) {
 			_self.setAlias(_self.alias);

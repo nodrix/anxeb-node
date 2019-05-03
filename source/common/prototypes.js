@@ -23,6 +23,21 @@ module.exports = function () {
 		};
 	}
 
+	if (!String.prototype.startsWithAny) {
+		String.prototype.startsWithAny = function (value) {
+			if (value instanceof Array) {
+				for (var i = 0; i < value.length; i++) {
+					if (this.startsWith(value[i]) === true) {
+						return true;
+					}
+				}
+				return false;
+			} else {
+				return this.startsWith(value);
+			}
+		}
+	}
+
 	if (!String.prototype.replaceAll) {
 		String.prototype.replaceAll = function (search, replacement) {
 			let target = this;
@@ -35,6 +50,17 @@ module.exports = function () {
 			let text = this;
 			text = text.replaceAll('.', ' ');
 			return text.replace(/\s(.)/g, function ($1) { return $1.toUpperCase(); }).replace(/\s/g, '').replace(/^(.)/, function ($1) { return $1.toLowerCase(); });
+		}
+	}
+
+	if (!String.prototype.toTitleCase) {
+		String.prototype.toTitleCase = function () {
+			return this.replace(
+				/\w\S*/g,
+				function (txt) {
+					return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+				}
+			);
 		}
 	}
 

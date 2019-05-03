@@ -15,6 +15,22 @@ const utils = {
 		path   : path,
 		fs     : fs,
 		moment : moment,
+		money  : {
+			normalize : function (value) {
+				return Number(value.toFixed(2));
+			}
+		},
+		date   : {
+			now  : function () {
+				return moment();
+			},
+			utc  : function () {
+				return moment().utc();
+			},
+			unix : function () {
+				return moment().unix();
+			}
+		},
 		data   : {
 			populate         : function (obj, source) {
 				var model = obj._doc || obj;

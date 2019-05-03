@@ -4,8 +4,9 @@ const Context = require('./context').instance;
 
 module.exports = {
 	types    : {
-		post   : 'post',
 		get    : 'get',
+		post   : 'post',
+		put    : 'put',
 		delete : 'delete'
 	},
 	instance : function (route, base, func, type) {
@@ -52,7 +53,8 @@ module.exports = {
 			_self.service.security.checkpoint({
 				access : _self.base.access || _self.route.access,
 				path   : _self.base.path || _self.route.path,
-				roles  : _self.base.role || _self.route.roles
+				roles  : _self.base.roles || _self.route.roles,
+				owners : _self.base.owners || _self.route.owners,
 			}, req, res, next).then(function () {
 				dispatch(req, res, next, options);
 			});

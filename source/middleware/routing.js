@@ -35,6 +35,7 @@ module.exports = {
 				let buildResult = function (err) {
 					return {
 						message : err.message,
+						route   : err.route,
 						code    : err.event !== undefined ? err.event.code : 0,
 						stack   : _self.service.log.stack ? new Stack(err).substract.main() : null,
 						meta    : err.meta !== undefined ? err.meta : undefined,
@@ -60,7 +61,7 @@ module.exports = {
 
 				let isClient = req && req.headers && req.headers.source === 'Anxeb';
 
-				if (isClient) {
+				if (isClient || (response.route != null && response.route.type === 'action')) {
 					res.json(response);
 				} else if (_self.defaults.routes.unauthorized && (
 					err.event.code === _self.service.log.exception.unauthorized_access.code ||

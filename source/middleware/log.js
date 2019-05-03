@@ -8,6 +8,7 @@ const clc = require('cli-color');
 module.exports = {
 	instance : function () {
 		let _self = this;
+		let _events = null;
 
 		_self.stack = process.env.NODE_ENV !== 'PROD';
 
@@ -148,10 +149,14 @@ module.exports = {
 			_self.enabled = settings.enabled !== undefined ? settings.enabled : true;
 			_self.stack = settings.stack !== undefined ? settings.stack : process.env.NODE_ENV !== 'PROD';
 			_self.file = settings.file;
+			_events = settings.events;
+			_self.reload();
+		};
 
-			if (settings.events) {
+		_self.reload = function(){
+			if (_events) {
 				try {
-					utils.internal.modules.list(settings.events).map(function (item) {
+					utils.internal.modules.list(_events).map(function (item) {
 						_self.include.event(item.module);
 					});
 				} catch (err) {

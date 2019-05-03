@@ -26,6 +26,7 @@ module.exports = {
 		_self.do = {
 			get    : _request.get,
 			post   : _request.post,
+			put    : _request.put,
 			delete : _request.delete
 		};
 

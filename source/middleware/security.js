@@ -101,6 +101,12 @@ module.exports = {
 		};
 
 		_self.canAccess = function (params) {
+			if (params.request.owners && params.request.owners !== '*' && params.request.owners.length && params.request.owners[0] !== '*' && params.identity.type) {
+				if (params.request.owners.includes(params.identity.type) !== true) {
+					return false;
+				}
+			}
+
 			for (let c = 0; c < params.identity.claims.length; c++) {
 				let claim = params.identity.claims[c];
 				if (typeof (claim) === 'string') {
@@ -118,9 +124,16 @@ module.exports = {
 			}
 
 			if (params.identity.roles && params.identity.roles.length) {
+				if (params.identity.roles === '*') {
+					return true;
+				}
 				if (params.identity.roles.includes('*') === true) {
 					return true;
 				}
+			}
+
+			if (params.request.roles === '*') {
+				return true;
 			}
 
 			if (params.request.roles && params.request.roles.length > 0) {
@@ -148,10 +161,12 @@ module.exports = {
 								if (!auth.body.roles || !auth.body.claims || !_self.canAccess({
 									identity : {
 										claims : auth.body.claims,
-										roles  : auth.body.roles
+										roles  : auth.body.roles,
+										type   : auth.body.type
 									},
 									request  : {
 										roles  : params.roles,
+										owners : params.owners,
 										path   : params.path,
 										method : req.method
 									}

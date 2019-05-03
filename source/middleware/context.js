@@ -64,10 +64,12 @@ module.exports = {
 						payload.layout = utils.general.path.join(_self.service.renderer.settings.templates.containers, _self.route.container);
 					}
 				} else if (_self.route.parent) {
-					if (_self.route.parent.view.startsWith('.')) {
-						payload.layout = _self.route.parent.view;
-					} else {
-						payload.layout = utils.general.path.join(_self.service.renderer.settings.templates.views, _self.route.parent.view);
+					if (_self.route.parent.view) {
+						if (_self.route.parent.view.startsWith('.')) {
+							payload.layout = _self.route.parent.view;
+						} else {
+							payload.layout = utils.general.path.join(_self.service.renderer.settings.templates.views, _self.route.parent.view);
+						}
 					}
 				}
 			}
