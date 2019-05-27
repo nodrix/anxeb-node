@@ -35,7 +35,7 @@ module.exports = function (server, params) {
 	};
 
 	_self.fetch = {
-		modules : function (modulesPath, caller, options) {
+		modules   : function (modulesPath, caller, options) {
 			let ownerDesc = caller ? (_self.key + ' ' + caller) : 'internal  ' + _self.key + ' usage';
 
 			try {
@@ -51,7 +51,7 @@ module.exports = function (server, params) {
 				}
 			}
 		},
-		files   : function (filesPath, options) {
+		files     : function (filesPath, options) {
 			if (filesPath) {
 				var getFiles = function (filesPath, options) {
 					var result = [];
@@ -60,14 +60,17 @@ module.exports = function (server, params) {
 					} else {
 						var flist = utils.general.file.list(filesPath, options || {
 							subfolders : true,
-							endsWith   : '.js'
+							endsWith   : '.js',
+							content    : false
 						});
 						for (var f = 0; f < flist.length; f++) {
 							var fileName = flist[f];
+							var fullPath = utils.general.path.join(filesPath, fileName);
 							result.push({
 								filePath : fileName,
 								rootPath : filesPath,
-								fullPath : utils.general.path.join(filesPath, fileName)
+								fullPath : fullPath,
+								content  : options && options.content === true ? utils.general.file.read(fullPath, 'utf8') : undefined
 							});
 						}
 					}
@@ -88,6 +91,14 @@ module.exports = function (server, params) {
 			} else {
 				_self.log.exception.missing_parameter.args('filesPath', _self.key + '.fetch.files').throw();
 			}
+		},
+		templates : function (templatesPath, options) {
+			options = options || {};
+			options.content = options.content || true;
+			options.subfolders = options.subfolders || true;
+			options.endsWith = options.endsWith || '.hbs';
+
+			return this.files(templatesPath, options);
 		}
 	};
 

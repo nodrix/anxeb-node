@@ -18,6 +18,7 @@ module.exports = {
 
 		_self.service = service;
 		_self.settings = settings || {};
+		_self.prefixes = {};
 		_self.actions = {};
 		_self.routes = {};
 		_self.router = Router();
@@ -142,6 +143,10 @@ module.exports = {
 				return null;
 			}
 		};
+
+		if (_self.settings.prefixes) {
+			_self.prefixes = _self.settings.prefixes;
+		}
 
 		if (_self.settings.parsers) {
 			if (_self.settings.parsers.json !== undefined && _self.settings.parsers.json !== false) {

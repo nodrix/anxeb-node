@@ -30,5 +30,9 @@ module.exports = {
 		_self.read = function (filePath) {
 			return utils.internal.file.read(_self.service.locate.storage(_self.sub_folder, filePath));
 		};
+
+		_self.exists = function (filePath) {
+			return utils.internal.file.exists(_self.service.locate.storage(_self.sub_folder, filePath));
+		};
 	}
 };

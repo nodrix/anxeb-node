@@ -17,7 +17,7 @@ const utils = {
 		moment : moment,
 		money  : {
 			normalize : function (value) {
-				return Number(value.toFixed(2));
+				return Number(parseFloat(value).toFixed(2));
 			}
 		},
 		date   : {
@@ -86,11 +86,21 @@ const utils = {
 			}
 		},
 		url    : {
+			hierarchy : function (value) {
+				value = this.normalize(value);
+				value = value.substr(1).replace(('/', '.'));
+				return value;
+			},
 			normalize : function (value) {
-				if (value) {
-					return value.replaceAll('\\', '/');
-				} else {
+				if (value === '/' || value == null) {
 					return '/';
+				} else {
+					value = value.replaceAll('\\', '/');
+					value = path.normalize('/' + value);
+					if (value.endsWith('/')) {
+						value = value.substr(0, value.length - 1);
+					}
+					return value;
 				}
 			},
 			create    : function (url) {
@@ -109,8 +119,8 @@ const utils = {
 					});
 				});
 			},
-			read   : function (filePath) {
-				return fs.readFileSync(filePath)
+			read   : function (filePath, options) {
+				return fs.readFileSync(filePath, options)
 			},
 			write  : function (filePath, params) {
 				const doAppend = function (canCreateDirectory) {
@@ -186,9 +196,10 @@ const utils = {
 	},
 	internal : {
 		file       : {
-			fetch : (filePath) => utils.general.file.fetch(utils.internal.parameters.fill.date(filePath)),
-			read  : (filePath) => utils.general.file.read(utils.internal.parameters.fill.date(filePath)),
-			write : (filePath, params) => utils.general.file.write(utils.internal.parameters.fill.date(filePath), params),
+			fetch  : (filePath) => utils.general.file.fetch(utils.internal.parameters.fill.date(filePath)),
+			read   : (filePath) => utils.general.file.read(utils.internal.parameters.fill.date(filePath)),
+			write  : (filePath, params) => utils.general.file.write(utils.internal.parameters.fill.date(filePath), params),
+			exists : (filePath) => utils.general.file.exists(utils.internal.parameters.fill.date(filePath))
 		},
 		modules    : {
 			list : function (data) {

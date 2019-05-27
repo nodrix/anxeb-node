@@ -22,14 +22,17 @@ const Route = {
 		_self.routing = routing;
 		_self.service = routing.service;
 		_self.parent = parent || null;
-		_self.name = params.name;
 		_self.type = params.type || (parent ? parent.type : Route.types.action);
-		_self.view = _self.type !== Route.types.action ? (params.view || (parent ? parent.view + '/' + _self.name : _self.name)) : null;
+
 		_self.container = _self.type !== Route.types.action ? (params.container) : null;
-		_self.url = utils.general.url.normalize(params.url ? params.url : '/' + _self.name);
+		_self.prefix = parent == null ? (params.prefix || (_self.type === Route.types.action ? _self.routing.prefixes.actions : undefined) || (_self.type === Route.types.view ? _self.routing.prefixes.views : undefined)) : undefined;
+		_self.name = _self.prefix ? utils.general.url.hierarchy(_self.prefix) + '.' + params.name : params.name;
+		_self.view = _self.type !== Route.types.action ? (params.view || (parent ? parent.view + '/' + _self.name : _self.name)) : null;
+		_self.url = utils.general.url.normalize(params.url ? params.url : params.name);
+		_self.url = _self.prefix ? utils.general.url.normalize(utils.general.path.join(utils.general.url.normalize(_self.prefix), _self.url)) : _self.url;
 		_self.alias = params.alias ? utils.general.url.normalize(params.alias) : null;
-		_self.path = utils.general.url.normalize(parent ? utils.general.path.join(parent.path, _self.url) : _self.url);
-		_self.link = utils.general.url.normalize(parent ? utils.general.path.join(parent.link, _self.url) : utils.general.path.join('/', _self.container || '/', _self.url));
+		_self.path = parent ? utils.general.path.join(parent.path, _self.url) : _self.url;
+		_self.link = parent ? utils.general.path.join(parent.link, _self.url) : utils.general.url.normalize(utils.general.path.join('/', _self.container || '/', _self.url));
 		_self.identifier = (_self.link.startsWith('/') ? _self.link.substr(1) : _self.link).replace('/', '.');
 		_self.access = params.access || (parent ? parent.access : Route.access.public);
 		_self.roles = params.roles || (parent ? parent.roles : null);

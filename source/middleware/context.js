@@ -48,34 +48,42 @@ module.exports = {
 			}
 		};
 
-		_self.render = function (payload) {
-			if (_self.res.finished || _self.res.statusCode === 408) {
-				return;
-			}
-			payload = payload || {};
-
-			if (_options && _options.partial === true) {
-				payload.layout = null;
+		_self.render = function (payload, template, options) {
+			if (template != null) {
+				_self.service.renderer.compile(template, payload, options).then(function (html) {
+					_self.res.send(html);
+				}).catch(function (err) {
+					_self.service.log.exception.invalid_request.args(err).throw(_self);
+				});
 			} else {
-				if (_self.route.container) {
-					if (_self.route.container.startsWith('.')) {
-						payload.layout = _self.route.container;
-					} else {
-						payload.layout = utils.general.path.join(_self.service.renderer.settings.templates.containers, _self.route.container);
-					}
-				} else if (_self.route.parent) {
-					if (_self.route.parent.view) {
-						if (_self.route.parent.view.startsWith('.')) {
-							payload.layout = _self.route.parent.view;
+				if (_self.res.finished || _self.res.statusCode === 408) {
+					return;
+				}
+				payload = payload || {};
+
+				if (_options && _options.partial === true) {
+					payload.layout = null;
+				} else {
+					if (_self.route.container) {
+						if (_self.route.container.startsWith('.')) {
+							payload.layout = _self.route.container;
 						} else {
-							payload.layout = utils.general.path.join(_self.service.renderer.settings.templates.views, _self.route.parent.view);
+							payload.layout = utils.general.path.join(_self.service.renderer.settings.templates.containers, _self.route.container);
+						}
+					} else if (_self.route.parent) {
+						if (_self.route.parent.view) {
+							if (_self.route.parent.view.startsWith('.')) {
+								payload.layout = _self.route.parent.view;
+							} else {
+								payload.layout = utils.general.path.join(_self.service.renderer.settings.templates.views, _self.route.parent.view);
+							}
 						}
 					}
 				}
-			}
 
-			postCall(payload);
-			_self.res.render(_self.route.view, payload);
+				postCall(payload);
+				_self.res.render(_self.route.view, payload);
+			}
 		};
 
 		_self.send = function (payload) {
@@ -103,6 +111,15 @@ module.exports = {
 
 			_self.res.end(img);
 		};
+
+		_self.file = function (filePath, options) {
+			_self.res.sendFile(filePath, options)
+		};
+
+		_self.download = function (filePath, options) {
+			_self.res.download(filePath, options)
+		};
+
 
 		_self.complete = function () {
 			this.send();

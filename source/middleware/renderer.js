@@ -16,6 +16,46 @@ module.exports = {
 		_self.settings = settings || {};
 		_self.settings.extension = _self.settings.extension || '.hbs';
 
+		_self.compile = function (mainTemplate, data, options) {
+			return new Promise(function (resolve, reject) {
+				try {
+					let hbs = Handlebars.create();
+					var partials = {};
+					var templateFile = _self.service.locate.source(mainTemplate);
+					var templateFolder = utils.general.path.dirname(templateFile);
+					var files = _self.service.fetch.templates(templateFolder);
+					var mainContent = null;
+
+					for (var p = 0; p < files.length; p++) {
+						var file = files[p];
+						if (mainTemplate.endsWith(file.filePath)) {
+							mainContent = file.content;
+						} else {
+							partials[file.filePath.replace('.hbs', '')] = file.content;
+						}
+					}
+					hbs.registerPartial(partials);
+
+					if (options) {
+						if (options.decorators) {
+							hbs.registerDecorator(options.decorators);
+						}
+						if (options.helpers) {
+							hbs.registerHelper(options.helpers);
+						}
+						if (options.partials) {
+							hbs.registerPartial(options.partials);
+						}
+					}
+					var result = hbs.compile(mainContent)(data);
+					resolve(result);
+				} catch (err) {
+					reject(err);
+				}
+
+			});
+		};
+
 		_hbs.cacheLayout = function (layoutFile, useCache, cb) {
 			var self = this;
 			if (utils.general.path.extname(layoutFile) === '') {
