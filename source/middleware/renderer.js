@@ -16,18 +16,44 @@ module.exports = {
 		_self.settings = settings || {};
 		_self.settings.extension = _self.settings.extension || '.hbs';
 
+		let peekPath = function (paths, forFile) {
+			if (paths) {
+				if (paths instanceof Array) {
+					return paths.iterate((pathItem) => {
+						let file = utils.general.path.join(pathItem, forFile);
+						if (utils.general.file.exists(file + _self.settings.extension)) {
+							return file;
+						}
+					}) || null;
+				} else {
+					return utils.general.path.join(paths, forFile);
+				}
+			} else {
+				return null;
+			}
+		};
+
+		_self.retrieve = {
+			container : function (forFile) {
+				return _self.settings.templates ? peekPath(_self.settings.templates.containers, forFile) : null;
+			},
+			view      : function (forFile) {
+				return _self.settings.templates ? peekPath(_self.settings.templates.views, forFile) : null;
+			}
+		};
+
 		_self.compile = function (mainTemplate, data, options) {
 			return new Promise(function (resolve, reject) {
 				try {
 					let hbs = Handlebars.create();
-					var partials = {};
-					var templateFile = _self.service.locate.source(mainTemplate);
-					var templateFolder = utils.general.path.dirname(templateFile);
-					var files = _self.service.fetch.templates(templateFolder);
-					var mainContent = null;
+					let partials = {};
+					let templateFile = _self.service.locate.source(mainTemplate);
+					let templateFolder = utils.general.path.dirname(templateFile);
+					let files = _self.service.fetch.templates(templateFolder);
+					let mainContent = null;
 
-					for (var p = 0; p < files.length; p++) {
-						var file = files[p];
+					for (let p = 0; p < files.length; p++) {
+						let file = files[p];
 						if (mainTemplate.endsWith(file.filePath)) {
 							mainContent = file.content;
 						} else {
@@ -47,7 +73,7 @@ module.exports = {
 							hbs.registerPartial(options.partials);
 						}
 					}
-					var result = hbs.compile(mainContent)(data);
+					let result = hbs.compile(mainContent)(data);
 					resolve(result);
 				} catch (err) {
 					reject(err);
@@ -57,12 +83,12 @@ module.exports = {
 		};
 
 		_hbs.cacheLayout = function (layoutFile, useCache, cb) {
-			var self = this;
+			let self = this;
 			if (utils.general.path.extname(layoutFile) === '') {
 				layoutFile += this._options.extname;
 			}
 
-			var layoutTemplates = this.cache[layoutFile];
+			let layoutTemplates = this.cache[layoutFile];
 			if (layoutTemplates) {
 				return cb(null, layoutTemplates);
 			}
@@ -72,14 +98,27 @@ module.exports = {
 					return cb(err);
 				}
 
-				if (layoutFile.startsWith(_self.settings.templates.views)) {
-					var viewName = layoutFile.substr(_self.settings.templates.views.length + 1);
-					var dotIndex = viewName.lastIndexOf('.');
+				let viewName = null;
+
+				if (_self.settings.templates.views instanceof Array) {
+					viewName = _self.settings.templates.views.iterate((viewPath) => {
+						if (layoutFile.startsWith(viewPath)) {
+							return layoutFile.substr(viewPath.length + 1);
+						}
+					}) || null;
+				} else {
+					if (layoutFile.startsWith(_self.settings.templates.views)) {
+						viewName = layoutFile.substr(_self.settings.templates.views.length + 1);
+					}
+				}
+
+				if (viewName != null) {
+					let dotIndex = viewName.lastIndexOf('.');
 					if (dotIndex > -1) {
 						viewName = viewName.substr(0, dotIndex);
 					}
 
-					var route = _self.service.routing.retrieve.byView(viewName);
+					let route = _self.service.routing.retrieve.byView(viewName);
 					if (route) {
 						if (route.container) {
 							let va = '{{!< ' + route.container + '}}';
@@ -91,10 +130,10 @@ module.exports = {
 					}
 				}
 
-				var parentLayoutFile = self.declaredLayoutFile(str, layoutFile);
+				let parentLayoutFile = self.declaredLayoutFile(str, layoutFile);
 
-				var _returnLayouts = function (layouts) {
-					var currentLayout;
+				let _returnLayouts = function (layouts) {
+					let currentLayout;
 					layouts = layouts.slice(0);
 					currentLayout = self.compile(str, layoutFile);
 					layouts.push(currentLayout);
@@ -126,7 +165,7 @@ module.exports = {
 				}
 			},
 			anxeb   : function () {
-				var lines = ["<!-- Anxeb Base -->"];
+				let lines = ["<!-- Anxeb Base -->"];
 				lines.push('<script src="' + utils.general.path.join(_self.service.routing.internal.bundle.path, 'core/anxeb.js') + '"></script>');
 				lines.push('<script src="' + utils.general.path.join(_self.service.routing.internal.bundle.path, 'core/prototypes.js') + '"></script>');
 				lines.push('<script src="' + utils.general.path.join(_self.service.routing.internal.bundle.path, 'core/utils.js') + '"></script>');

@@ -126,18 +126,16 @@ module.exports = {
 
 		_self.retrieve = {
 			byView : function (requestedView, childs) {
-				var iroutes = childs || _self.routes;
+				let iroutes = childs || _self.routes;
 				for (let r in iroutes) {
 					let item = iroutes[r];
 					if (item.view === requestedView) {
 						return item;
 					} else if (item.childs) {
-						var result = _self.retrieve.byView(requestedView, item.childs);
+						let result = _self.retrieve.byView(requestedView, item.childs);
 						if (result) {
 							return result;
 						}
-					} else {
-						return null;
 					}
 				}
 				return null;

@@ -68,14 +68,14 @@ module.exports = {
 						if (_self.route.container.startsWith('.')) {
 							payload.layout = _self.route.container;
 						} else {
-							payload.layout = utils.general.path.join(_self.service.renderer.settings.templates.containers, _self.route.container);
+							payload.layout = _self.service.renderer.retrieve.container(_self.route.container);
 						}
 					} else if (_self.route.parent) {
 						if (_self.route.parent.view) {
 							if (_self.route.parent.view.startsWith('.')) {
 								payload.layout = _self.route.parent.view;
 							} else {
-								payload.layout = utils.general.path.join(_self.service.renderer.settings.templates.views, _self.route.parent.view);
+								payload.layout = _self.service.renderer.retrieve.view(_self.route.parent.view);
 							}
 						}
 					}

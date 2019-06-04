@@ -12,8 +12,8 @@ module.exports = function (routing, settings) {
 	_self.list = {};
 
 	let getAnxebObject = function () {
-		var result = [];
-		result.push('var anxeb = ' + utils.general.data.format({
+		let result = [];
+		result.push('let anxeb = ' + utils.general.data.format({
 			settings : {
 				client  : _self.service.client,
 				routing : {

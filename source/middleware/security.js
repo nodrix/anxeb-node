@@ -101,9 +101,30 @@ module.exports = {
 		};
 
 		_self.canAccess = function (params) {
-			if (params.request.owners && params.request.owners !== '*' && params.request.owners.length && params.request.owners[0] !== '*' && params.identity.type) {
-				if (params.request.owners.includes(params.identity.type) !== true) {
-					return false;
+			let methodName = params.request.method.toLowerCase();
+
+			if (params.request.owners != null && params.identity.type != null) {
+				if (typeof params.request.owners === 'string') {
+					if (params.request.owners !== '*' && params.identity.type !== params.request.owners) {
+						return false;
+					}
+				} else if (params.request.owners instanceof Array && params.request.owners.length > 0) {
+					if (params.request.owners[0] !== '*' && !params.request.owners.includes(params.identity.type)) {
+						return false;
+					}
+				} else if (typeof params.request.owners === 'object') {
+					let methodOwners = params.request.owners[methodName];
+					if (methodOwners != null) {
+						if (typeof methodOwners === 'string') {
+							if (methodOwners !== '*' && params.identity.type !== methodOwners) {
+								return false;
+							}
+						} else if (methodOwners instanceof Array && methodOwners.length > 0) {
+							if (methodOwners[0] !== '*' && !methodOwners.includes(params.identity.type)) {
+								return false;
+							}
+						}
+					}
 				}
 			}
 
@@ -114,10 +135,10 @@ module.exports = {
 						return true;
 					}
 				} else {
-					var starts = claim.path[claim.path.length - 1] === '*' ? params.request.path.startsWith(claim.path.substring(0, claim.path.length - 1)) : false;
-					var same = claim.path === params.request.path;
+					let starts = claim.path[claim.path.length - 1] === '*' ? params.request.path.startsWith(claim.path.substring(0, claim.path.length - 1)) : false;
+					let same = claim.path === params.request.path;
 
-					if ((claim.path === '*' || starts || same) && (claim.method === '*' || params.request.method.toLowerCase() === claim.method.toLowerCase())) {
+					if ((claim.path === '*' || starts || same) && (claim.method === '*' || methodName === claim.method.toLowerCase())) {
 						return true;
 					}
 				}
@@ -136,15 +157,36 @@ module.exports = {
 				return true;
 			}
 
-			if (params.request.roles && params.request.roles.length > 0) {
-				for (let r = 0; r < params.request.roles.length; r++) {
-					let requestRole = params.request.roles[r];
-					if (requestRole === '*') {
+			if (params.request.roles != null && params.identity.roles != null && params.identity.roles.length) {
+				if (typeof params.request.roles === 'string') {
+					if (params.request.roles === '*' || params.identity.roles.includes(params.request.roles)) {
 						return true;
 					}
-					if (params.identity.roles && params.identity.roles.length) {
-						if (params.identity.roles.includes(requestRole) === true) {
+				} else if (params.request.roles instanceof Array && params.request.roles.length > 0) {
+					return params.request.roles.iterate((requestRole) => {
+						if (requestRole === '*') {
 							return true;
+						}
+						if (params.identity.roles.includes(requestRole)) {
+							return true;
+						}
+					}) || false;
+				} else if (typeof params.request.roles === 'object') {
+					let methodRoles = params.request.roles[methodName];
+					if (methodRoles != null) {
+						if (typeof methodRoles === 'string') {
+							if (methodRoles === '*' || params.identity.roles.includes(methodRoles)) {
+								return true;
+							}
+						} else if (methodRoles instanceof Array && methodRoles.length > 0) {
+							return methodRoles.iterate((requestRole) => {
+								if (requestRole === '*') {
+									return true;
+								}
+								if (params.identity.roles.includes(requestRole)) {
+									return true;
+								}
+							}) || false;
 						}
 					}
 				}

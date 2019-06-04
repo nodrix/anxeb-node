@@ -12,9 +12,9 @@ module.exports = function (routing, settings) {
 	_self.path = _self.settings.path ? _self.settings.path : '/anxeb/container';
 
 	const isPublicContainer = function (name, childs) {
-		var result = null;
+		let result = null;
 
-		var iroutes = childs || _self.routing.routes;
+		let iroutes = childs || _self.routing.routes;
 		for (let r in iroutes) {
 			let item = iroutes[r];
 			if (item.container === name) {
@@ -23,7 +23,7 @@ module.exports = function (routing, settings) {
 					return true;
 				}
 			} else if (item.childs) {
-				var cresult = isPublicContainer(name, item.childs);
+				let cresult = isPublicContainer(name, item.childs);
 				if (cresult === true) {
 					return true;
 				} else if (cresult === false) {

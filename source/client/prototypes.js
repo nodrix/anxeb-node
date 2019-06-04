@@ -7,26 +7,40 @@ if (!String.prototype.replaceAll) {
 
 if (!Array.prototype.iterate) {
 	Array.prototype.iterate = function (callback, filter) {
+		if (!callback) { return; }
 		let items = this;
 
-		let process = function (item) {
+		for (let i = 0; i < items.length; i++) {
+			let item = items[i];
 			if (filter == null || filter(item, i) === true) {
-				callback(item, i);
-			}
-		};
-
-		if (items instanceof Array) {
-			if (callback) {
-				for (let i in items) {
-					if (items.hasOwnProperty(i)) {
-						process(items[i]);
-					}
+				let result = callback(item, i);
+				if (result !== undefined) {
+					return result;
 				}
 			}
-		} else {
-			if (callback) {
-				for (let i = 0; i < items.length; i++) {
-					process(items[i]);
+		}
+	}
+}
+
+if (!Array.prototype.atomize) {
+	Array.prototype.atomize = function (callback, filter) {
+		let items = this;
+		for (let i = 0; i < items.length; i++) {
+			let obj = items[i];
+			if (typeof obj === 'object') {
+				for (let key in obj) {
+					let item = obj[key];
+					if (filter == null || filter(item, key) === true) {
+						let result = callback(item, key);
+						if (result !== undefined) {
+							return result;
+						}
+					}
+				}
+			} else if (obj instanceof Array) {
+				let result = obj.iterate(callback, filter);
+				if (result !== undefined) {
+					return result;
 				}
 			}
 		}

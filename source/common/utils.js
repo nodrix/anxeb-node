@@ -33,8 +33,8 @@ const utils = {
 		},
 		data   : {
 			populate         : function (obj, source) {
-				var model = obj._doc || obj;
-				for (var i in model) {
+				let model = obj._doc || obj;
+				for (let i in model) {
 					if (source[i] !== undefined && i !== '_id') {
 						obj[i] = source[i];
 					}
@@ -61,7 +61,7 @@ const utils = {
 				return true;
 			},
 			format           : function (obj, prefix, ignoreEdges) {
-				var result = [];
+				let result = [];
 
 				let lines = JSON.stringify(obj, null, 4).split('\n');
 				for (let i = 0; i < lines.length; i++) {

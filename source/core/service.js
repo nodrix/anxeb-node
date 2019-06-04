@@ -53,19 +53,19 @@ module.exports = function (server, params) {
 		},
 		files     : function (filesPath, options) {
 			if (filesPath) {
-				var getFiles = function (filesPath, options) {
-					var result = [];
+				let getFiles = function (filesPath, options) {
+					let result = [];
 					if (!utils.general.file.exists(filesPath)) {
 						_self.log.exception.parameter_file_not_found.args(filesPath).throw();
 					} else {
-						var flist = utils.general.file.list(filesPath, options || {
+						let flist = utils.general.file.list(filesPath, options || {
 							subfolders : true,
 							endsWith   : '.js',
 							content    : false
 						});
-						for (var f = 0; f < flist.length; f++) {
-							var fileName = flist[f];
-							var fullPath = utils.general.path.join(filesPath, fileName);
+						for (let f = 0; f < flist.length; f++) {
+							let fileName = flist[f];
+							let fullPath = utils.general.path.join(filesPath, fileName);
 							result.push({
 								filePath : fileName,
 								rootPath : filesPath,
@@ -77,10 +77,10 @@ module.exports = function (server, params) {
 					return result;
 				};
 
-				var result = [];
+				let result = [];
 				if (filesPath instanceof Array) {
-					for (var i = 0; i < filesPath.length; i++) {
-						var fpath = filesPath[i];
+					for (let i = 0; i < filesPath.length; i++) {
+						let fpath = filesPath[i];
 						result = result.concat(getFiles(fpath, options));
 					}
 				} else {
@@ -156,7 +156,7 @@ module.exports = function (server, params) {
 			beginListening().then(function () {
 				_self.log.debug.service_initialized.args(_self.key).print();
 				if (_self.extensions) {
-					var starters = [];
+					let starters = [];
 					for (let key in _self.extensions) {
 						let settings = _self.extensions[key];
 						let extension = _self.server.extensions[key];

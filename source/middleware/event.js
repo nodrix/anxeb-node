@@ -279,7 +279,7 @@ module.exports = {
 			err.meta = params && params.meta ? params.meta : _self.meta;
 
 			if (params != null && params.route) {
-				var route = params.route;
+				let route = params.route;
 				err.route = {
 					name       : route.name,
 					type       : route.type,
