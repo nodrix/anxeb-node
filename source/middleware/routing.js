@@ -193,6 +193,7 @@ module.exports = {
 
 		_self.service.express.use(function (err, req, res, next) {
 			let event = null;
+			let silent = err.silent;
 
 			if (err.event !== undefined) {
 				event = err.event;
@@ -200,8 +201,10 @@ module.exports = {
 				event = _self.service.log.exception.unhandled_exception.args(err.message, err);
 				err = event.toError();
 			}
-			event.print();
 
+			if (silent !== true) {
+				event.print();
+			}
 			_self.send.error(req, res, err, event.type === eventTypes.http_error ? event.code : 500);
 		});
 

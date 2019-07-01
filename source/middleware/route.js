@@ -21,9 +21,8 @@ const Route = {
 		_self.$params = params;
 		_self.routing = routing;
 		_self.service = routing.service;
-		_self.parent = parent || null;
+		_self.parent = parent || params.parent || null;
 		_self.type = params.type || (parent ? parent.type : Route.types.action);
-
 		_self.container = _self.type !== Route.types.action ? (params.container) : null;
 		_self.prefix = parent == null ? (params.prefix || (_self.type === Route.types.action ? _self.routing.prefixes.actions : undefined) || (_self.type === Route.types.view ? _self.routing.prefixes.views : undefined)) : undefined;
 		_self.name = _self.prefix ? utils.general.url.hierarchy(_self.prefix) + '.' + params.name : params.name;

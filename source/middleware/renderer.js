@@ -124,7 +124,7 @@ module.exports = {
 							let va = '{{!< ' + route.container + '}}';
 							str = va + '\n\n' + str;
 						} else if (route.parent) {
-							let va = '{{!< ./../' + route.parent.name + '}}\n\n';
+							let va = '{{!< ./../' + (typeof route.parent === 'string' ? route.parent : route.parent.name) + '}}\n\n';
 							str = va + '\n\n' + str;
 						}
 					}

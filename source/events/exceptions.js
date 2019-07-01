@@ -54,7 +54,7 @@ module.exports = {
 		code    : 5,
 		type    : eventTypes.parameter_error
 	},
-	extension_init_failed         : {
+	extension_init_failed    : {
 		message : 'Extension [0:w] initialization failed.',
 		code    : 6,
 		type    : eventTypes.parameter_error
@@ -78,6 +78,11 @@ module.exports = {
 	},
 	unauthorized_access : {
 		message : 'Unauthorized access to [1:w] using [0:w] method.',
+		code    : 401,
+		type    : eventTypes.http_error
+	},
+	denied_access       : {
+		message : 'Denied access to [1].',
 		code    : 401,
 		type    : eventTypes.http_error
 	},

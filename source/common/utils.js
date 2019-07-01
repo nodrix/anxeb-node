@@ -108,13 +108,20 @@ const utils = {
 			}
 		},
 		file   : {
-			fetch  : function (filePath) {
+			fetch  : function (filePath, options) {
 				return new Promise(function (resolve, reject) {
 					fs.readFile(filePath, 'utf8', function (err, data) {
 						if (err) {
 							reject(err);
 						} else {
-							resolve(data);
+							if (options && options.stats === true) {
+								resolve({
+									data  : data,
+									stats : fs.statSync(filePath)
+								});
+							} else {
+								resolve(data);
+							}
 						}
 					});
 				});
@@ -196,7 +203,7 @@ const utils = {
 	},
 	internal : {
 		file       : {
-			fetch  : (filePath) => utils.general.file.fetch(utils.internal.parameters.fill.date(filePath)),
+			fetch  : (filePath, options) => utils.general.file.fetch(utils.internal.parameters.fill.date(filePath), options),
 			read   : (filePath) => utils.general.file.read(utils.internal.parameters.fill.date(filePath)),
 			write  : (filePath, params) => utils.general.file.write(utils.internal.parameters.fill.date(filePath), params),
 			exists : (filePath) => utils.general.file.exists(utils.internal.parameters.fill.date(filePath))

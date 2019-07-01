@@ -65,16 +65,12 @@ module.exports = {
 					payload.layout = null;
 				} else {
 					if (_self.route.container) {
-						if (_self.route.container.startsWith('.')) {
-							payload.layout = _self.route.container;
-						} else {
-							payload.layout = _self.service.renderer.retrieve.container(_self.route.container);
-						}
+						payload.layout = _self.service.renderer.retrieve.container(_self.route.container);
 					} else if (_self.route.parent) {
-						if (_self.route.parent.view) {
-							if (_self.route.parent.view.startsWith('.')) {
-								payload.layout = _self.route.parent.view;
-							} else {
+						if (typeof _self.route.parent === 'string') {
+							payload.layout = _self.service.renderer.retrieve.view(_self.route.parent);
+						} else {
+							if (_self.route.parent.view) {
 								payload.layout = _self.service.renderer.retrieve.view(_self.route.parent.view);
 							}
 						}
@@ -129,6 +125,13 @@ module.exports = {
 			this.send();
 		};
 
+		_self.end = function (status, headers) {
+			if (status) {
+				this.res.writeHead(status, headers);
+			}
+			this.res.end();
+		};
+
 		_self.invalid = function () {
 			_self.service.log.exception.invalid_request.throw(this);
 		};
@@ -149,6 +152,15 @@ module.exports = {
 			let token = _self.sign(payload, options);
 			_self.req.session.bearer = { token : token };
 			return token;
+		};
+
+		_self.authorize = function (condition) {
+			if (condition === true) {
+				return true;
+			} else {
+				_self.service.log.exception.unauthorized_access.args(_self.req.method, _self.req.url).throw(this);
+				return false;
+			}
 		};
 
 		_self.login = function () {

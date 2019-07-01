@@ -277,6 +277,7 @@ module.exports = {
 			err.event = _self;
 			err.exit = params !== undefined ? params.exit || false : false;
 			err.meta = params && params.meta ? params.meta : _self.meta;
+			err.silent = params != null ? params.silent : false;
 
 			if (params != null && params.route) {
 				let route = params.route;

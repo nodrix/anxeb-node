@@ -23,8 +23,8 @@ module.exports = {
 			});
 		};
 
-		_self.fetch = function (filePath) {
-			return utils.internal.file.fetch(_self.service.locate.storage(_self.sub_folder, filePath));
+		_self.fetch = function (filePath, options) {
+			return utils.internal.file.fetch(_self.service.locate.storage(_self.sub_folder, filePath), options);
 		};
 
 		_self.read = function (filePath) {
