@@ -162,5 +162,10 @@ module.exports = {
 		message : 'Security keys not defined.',
 		code    : 6017,
 		type    : eventTypes.service_exception
-	}
+	},
+	invalid_image_data                : {
+		message : 'Invalid image data.',
+		code    : 6018,
+		type    : eventTypes.service_exception
+	},
 };
