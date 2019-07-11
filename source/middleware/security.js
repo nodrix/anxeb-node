@@ -219,6 +219,9 @@ module.exports = {
 								}
 							}).catch(function (err) {
 								if (err.message === 'jwt expired') {
+									if (req.session != null) {
+										req.session.bearer = null;
+									}
 									_self.service.log.exception.expired_token.throw({ next : next });
 								} else {
 									_self.service.log.exception.invalid_auth.args(err).throw({ next : next });
