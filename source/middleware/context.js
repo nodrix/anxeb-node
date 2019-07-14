@@ -1,6 +1,7 @@
 'use strict';
 const utils = require('../common/utils');
 const sharp = require('sharp');
+const request = require('request');
 
 module.exports = {
 	instance : function (route, call, options) {
@@ -189,10 +190,15 @@ module.exports = {
 
 		_self.login = function () {
 			if (_self.req.headers.authorization) {
-				_self.req.session.bearer = {
-					token : _self.req.headers.authorization.substring(7)
-				};
-				return _self.req.session.bearer;
+				if (_self.req.session == null) {
+					_self.service.log.exception.session_management_inactive.throw(this);
+					return null;
+				} else {
+					_self.req.session.bearer = {
+						token : _self.req.headers.authorization.substring(7)
+					};
+					return _self.req.session.bearer;
+				}
 			} else {
 				return null;
 			}
@@ -206,5 +212,24 @@ module.exports = {
 				return false;
 			}
 		};
+
+		_self.proxy = function (baseUri, path) {
+			let url = null;
+			if (baseUri.endsWith('/')) {
+				baseUri = baseUri.substr(0, baseUri.length - 1);
+			}
+
+			if (path) {
+				url = baseUri + utils.general.path.join('/', path, _self.req.path);
+			} else {
+				url = baseUri + utils.general.path.join('/', _self.req.path);
+			}
+
+			let headers = _self.req.headers;
+			if (_self.req.session && _self.req.session.bearer && _self.req.session.bearer.token) {
+				headers['Authorization'] = 'Bearer ' + _self.req.session.bearer.token;
+			}
+			_self.req.pipe(request({ url : url, headers : headers })).pipe(_self.res);
+		}
 	}
 };

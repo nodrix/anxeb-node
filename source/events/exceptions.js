@@ -168,4 +168,9 @@ module.exports = {
 		code    : 6018,
 		type    : eventTypes.service_exception
 	},
+	session_management_inactive       : {
+		message : 'Session management not activated.',
+		code    : 46019,
+		type    : eventTypes.http_error
+	},
 };
