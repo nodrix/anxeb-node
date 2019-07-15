@@ -35,7 +35,12 @@ module.exports = {
 
 			if (_self.route.routing.settings.context.methods) {
 				for (let m in _self.route.routing.settings.context.methods) {
-					_self[m] = _self.route.routing.settings.context.methods[m];
+					let obj = _self.route.routing.settings.context.methods[m];
+					if (typeof obj === 'function') {
+						_self[m] = obj(_self);
+					} else {
+						_self[m] = obj;
+					}
 				}
 			}
 		}
