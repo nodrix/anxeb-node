@@ -41,7 +41,7 @@ module.exports = {
 			_self.meta = params.meta;
 			_self.type = params.type;
 			_self.color = params.color || (_self.type === module.exports.types.debug_log ? 'green' : 'redBright');
-			_self.style = params.style || 'strike';
+			_self.style = params.style || null;
 			_log = params.log;
 
 			if (_log.identifier) {
@@ -142,9 +142,8 @@ module.exports = {
 			for (let i in items) {
 				let value = items[i];
 
-				if (value !== undefined && value !== null) {
-
-					if (value && value.message) {
+				if (value != null) {
+					if (value.message) {
 						_self.error = value;
 
 						if (_self.message.indexOf('[inner]') > -1) {
@@ -156,12 +155,10 @@ module.exports = {
 							_colorMessage = _self.message;
 						}
 					} else {
-						if (value !== undefined && value !== null) {
-							_self.message = replaceFeatures(_self.message, i, value, {
-								clear : true
-							});
-							_colorMessage = replaceFeatures(_colorMessage, i, value)
-						}
+						_self.message = replaceFeatures(_self.message, i, value, {
+							clear : true
+						});
+						_colorMessage = replaceFeatures(_colorMessage, i, value)
 					}
 				}
 			}
@@ -177,8 +174,16 @@ module.exports = {
 
 			let inner = _self.error && (_self.error.ever === undefined || _self.error.event !== this) ? _self.error : null;
 
+			let clcInstance = clc;
+			if (_self.color) {
+				clcInstance = clcInstance[_self.color];
+			}
+			if (_self.style) {
+				clcInstance = clcInstance[_self.style];
+			}
+
 			if (_self.type === module.exports.types.debug_log) {
-				clcText += clc.whiteBright(_self.title) + ' > ' + clc[_self.color][_self.style](_colorMessage);
+				clcText += clc.whiteBright(_self.title) + ' > ' + clcInstance(_colorMessage);
 				logText += _self.title + ' > ' + _self.message + '\n';
 			} else {
 				if (!_self.stack) {
@@ -191,7 +196,7 @@ module.exports = {
 
 				let stackString = _stackTrace && _self.stack ? _self.stack.substract.main('\n') + (inner ? '' : '\n') : '';
 
-				let clcHeader = clc.whiteBright(_self.title + ' > ') + clc[_self.color][_self.style]('Error Code ' + _self.code.toString().padStart(4, '0') + ' / ' + _colorMessage) + stackString;
+				let clcHeader = clc.whiteBright(_self.title + ' > ') + clcInstance('Error Code ' + _self.code.toString().padStart(4, '0') + ' / ' + _colorMessage) + stackString;
 				let logHeader = _self.title + ' > ' + 'Error Code ' + _self.code.toString().padStart(4, '0') + ' / ' + _self.message + stackString;
 
 				clcText += clcHeader;

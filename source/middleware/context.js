@@ -235,6 +235,6 @@ module.exports = {
 				headers['Authorization'] = 'Bearer ' + _self.req.session.bearer.token;
 			}
 			_self.req.pipe(request({ url : url, headers : headers })).pipe(_self.res);
-		}
+		};
 	}
 };
