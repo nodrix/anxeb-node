@@ -225,9 +225,9 @@ module.exports = {
 			}
 
 			if (path) {
-				url = baseUri + utils.general.path.join('/', path, _self.req.path);
+				url = baseUri + utils.general.path.join('/', path, _self.req.url);
 			} else {
-				url = baseUri + utils.general.path.join('/', _self.req.path);
+				url = baseUri + utils.general.path.join('/', _self.req.url);
 			}
 
 			let headers = _self.req.headers;
