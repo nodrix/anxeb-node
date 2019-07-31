@@ -146,14 +146,15 @@ module.exports = {
 
 		_self.init = function (settings) {
 			_self.identifier = settings.identifier || 'Anxeb';
-			_self.enabled = settings.enabled !== undefined ? settings.enabled : true;
-			_self.stack = settings.stack !== undefined ? settings.stack : process.env.NODE_ENV !== 'PROD';
+			_self.enabled = settings.enabled != null ? settings.enabled : true;
+			_self.stack = settings.stack != null ? settings.stack : process.env.NODE_ENV !== 'PROD';
+			_self.route = settings.route != null ? settings.route : false;
 			_self.file = settings.file;
 			_events = settings.events;
 			_self.reload();
 		};
 
-		_self.reload = function(){
+		_self.reload = function () {
 			if (_events) {
 				try {
 					utils.internal.modules.list(_events).map(function (item) {

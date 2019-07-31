@@ -36,9 +36,9 @@ module.exports = {
 				let buildResult = function (err) {
 					return {
 						message : err.message,
-						route   : err.route,
+						route   : _self.service.log.route ? err.route : undefined,
 						code    : err.event !== undefined ? err.event.code : 0,
-						stack   : _self.service.log.stack ? new Stack(err).substract.main() : null,
+						stack   : _self.service.log.stack ? new Stack(err).substract.main() : undefined,
 						meta    : err.meta !== undefined ? err.meta : undefined,
 						inner   : null
 					};
