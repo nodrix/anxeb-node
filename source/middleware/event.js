@@ -260,11 +260,14 @@ module.exports = {
 			if (params && params.next) {
 				params.next(err);
 			}
-			try {
-				throw err;
-			} catch (err) {
-				_self.stack = new Stack(err);
-				throw err;
+
+			if (params == null || params.silent !== true) {
+				try {
+					throw err;
+				} catch (err) {
+					_self.stack = new Stack(err);
+					throw err;
+				}
 			}
 		};
 
