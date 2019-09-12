@@ -8,6 +8,7 @@ const URL = require('url-parse');
 const parameters = require('./parameters');
 const moment = require('moment');
 const ip = require('ip');
+const sharp = require('sharp');
 
 const utils = {
 	general  : {
@@ -15,6 +16,7 @@ const utils = {
 		path   : path,
 		fs     : fs,
 		moment : moment,
+		sharp  : sharp,
 		money  : {
 			normalize : function (value) {
 				return Number(parseFloat(value).toFixed(2));
@@ -189,7 +191,8 @@ const utils = {
 
 				return checkPath('');
 			},
-			exists : fs.existsSync
+			exists : fs.existsSync,
+			stats  : fs.statSync
 		},
 		email  : {
 			validate : function (mail) {

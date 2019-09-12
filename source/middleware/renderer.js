@@ -194,6 +194,11 @@ module.exports = {
 			if (_self.settings.static) {
 				if (utils.general.file.exists(_self.settings.static)) {
 					_self.service.express.use(express.static(_self.settings.static));
+
+					_self.read = function (filePath) {
+						let finalPath = utils.general.path.join(_self.settings.static, filePath);
+						return utils.internal.file.read(finalPath);
+					};
 				} else {
 					_self.service.log.exception.parameter_path_not_found.args(_self.settings.static).throw();
 				}
