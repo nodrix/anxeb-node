@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path');
+const https = require('https');
 const clc = require('cli-color');
 const fs = require('fs');
 const mkpath = require('mkpath');
@@ -13,10 +14,57 @@ const sharp = require('sharp');
 const utils = {
 	general  : {
 		ip     : ip,
+		https  : https,
 		path   : path,
 		fs     : fs,
 		moment : moment,
 		sharp  : sharp,
+		format : {
+			number : function (value, params) {
+				let decimalCount = params != null && params.decimals != null ? params.decimals : 2;
+				let thousandComma = params != null && params.comma != null ? params.comma : true;
+
+				if (value == null) {
+					value = 0;
+				}
+
+				value = parseFloat(value).toFixed(decimalCount);
+
+				if (thousandComma === true) {
+					value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+				}
+				return value
+			},
+			date   : function (value, params) {
+				let date = null;
+
+				if (typeof value === 'number') {
+					date = moment.unix(value);
+				} else if (typeof value === 'string') {
+					date = moment(String(value));
+				} else {
+					date = value;
+				}
+
+				if (params === 'short_text') {
+					return date.format('D [de] MMMM');
+				} else if (params === 'full_text') {
+					return date.format('D [de] MMMM YYYY');
+				} else if (params === 'full_date') {
+					return date.format('DD/MM/YYYY hh:mm:ss A');
+				} else if (params === 'small_date') {
+					return date.format('D/M/YYYY h:mm A');
+				} else if (params.type === 'full_time') {
+					return date.format('hh:mm:ss A');
+				} else if (params.type === 'small_time') {
+					return date.format('h:mm A');
+				} else if (params === 'receipt') {
+					return date.format('DD/MM/YYYY h:mm:ss A');
+				} else {
+					return date.format('D/M/YYYY');
+				}
+			}
+		},
 		money  : {
 			normalize : function (value) {
 				return Number(parseFloat(value).toFixed(2));
