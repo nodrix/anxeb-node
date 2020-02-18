@@ -134,7 +134,15 @@ module.exports = function () {
 
 	if (!Buffer.prototype.same) {
 		Buffer.prototype.same = function (data) {
-			return this.equals(Buffer.from(data, 'hex'));
+			let bf = typeof data === 'string' ? Buffer.from(data, 'hex') : data;
+			return this.equals(bf);
+		};
+	}
+
+	if (!String.prototype.same) {
+		String.prototype.same = function (data) {
+			let str = typeof data === 'string' ? data : data.toString('hex');
+			return this === str;
 		};
 	}
 };
