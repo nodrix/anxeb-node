@@ -131,4 +131,10 @@ module.exports = function () {
 			}
 		}
 	}
+
+	if (!Buffer.prototype.same) {
+		Buffer.prototype.same = function (data) {
+			return this.equals(Buffer.from(data, 'hex'));
+		};
+	}
 };
