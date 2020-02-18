@@ -145,10 +145,4 @@ module.exports = function () {
 			return this === str;
 		};
 	}
-
-	if (!Object.prototype.same) {
-		Object.prototype.same = function (data) {
-			return this.toString() === data.toString();
-		};
-	}
 };
