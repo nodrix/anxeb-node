@@ -66,8 +66,20 @@ const utils = {
 			}
 		},
 		money  : {
-			normalize : function (value) {
-				return Number(parseFloat(value).toFixed(2));
+			normalize : function (value, options) {
+				let res = Number(parseFloat(value).toFixed(2));
+				if (isNaN(res)) {
+					if (options && options.default != null) {
+						return options.default;
+					} else {
+						return 0;
+					}
+				} else {
+					if (options && options.positive === true && res < 0) {
+						return 0;
+					}
+					return res;
+				}
 			}
 		},
 		date   : {
