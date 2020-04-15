@@ -8,24 +8,49 @@ const Locator = function (root, structure) {
 	_self.structure = structure;
 	_self.root = root;
 
-	let getPath = function (args, from) {
-		let paths = [];
+	let getPath = function (args, from, allowArray) {
+		let $paths = [];
 		if (args) {
 			for (let a = 0; a < args.length; a++) {
 
 				let arg = args[a];
 				if (arg !== undefined && arg !== null) {
-					paths.push(arg);
+					$paths.push(arg);
 				}
 			}
 		}
-		let result = typeof from === 'string' ? from : _self.root;
-		for (let i = 0; i < paths.length; i++) {
-			if (paths[i]) {
-				result = utils.general.path.join(result, paths[i]);
+
+		let $root = null;
+		if (typeof from === 'string') {
+			$root = from;
+		} else if (from instanceof Array) {
+			if (allowArray) {
+				$root = from;
+			} else {
+				$root = _self.root;
 			}
+		} else {
+			$root = _self.root;
 		}
-		return result;
+
+		let _getComposite = function (root, paths) {
+			let result = root;
+			for (let i = 0; i < paths.length; i++) {
+				if (paths[i]) {
+					result = utils.general.path.join(result, paths[i]);
+				}
+			}
+			return result;
+		}
+
+		if ($root instanceof Array) {
+			for (let i = 0; i < $root.length; i++) {
+				$root[i] = _getComposite($root[i], $paths);
+			}
+			return $root;
+		} else {
+			return _getComposite($root, $paths);
+		}
 	};
 
 	_self.item = function () {
@@ -41,7 +66,7 @@ const Locator = function (root, structure) {
 	};
 
 	_self.services = function () {
-		return getPath(arguments, _self.structure.services);
+		return getPath(arguments, _self.structure.services, true);
 	};
 
 	_self.keys = function () {

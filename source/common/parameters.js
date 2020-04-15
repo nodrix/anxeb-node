@@ -34,7 +34,9 @@ let setServerValues = function (value, params) {
 	result = result.replaceAll('[server_key]', params.key);
 	result = result.replaceAll('[server_description]', params.description || '');
 	result = result.replaceAll('[root_path]', params.settings.root);
-	result = result.replaceAll('[services_path]', params.structure.services || params.settings.root);
+	if (typeof params.structure.services === 'string') {
+		result = result.replaceAll('[services_path]', params.structure.services || params.settings.root);
+	}
 	result = result.replaceAll('[source_path]', params.structure.source || params.settings.root);
 	result = result.replaceAll('[logs_path]', params.structure.logs || params.settings.root);
 	result = result.replaceAll('[keys_path]', params.structure.keys || params.settings.root);
@@ -112,7 +114,13 @@ const parameters = {
 			params.structure = params.structure || {};
 
 			if (params.structure.services) {
-				params.structure.services = path.join(params.settings.root, params.structure.services);
+				if (params.structure.services instanceof Array) {
+					for (let i = 0; i < params.structure.services.length; i++) {
+						params.structure.services[i] = path.join(params.settings.root, params.structure.services[i]);
+					}
+				} else {
+					params.structure.services = path.join(params.settings.root, params.structure.services);
+				}
 			}
 			if (params.structure.logs) {
 				params.structure.logs = path.join(params.settings.root, params.structure.logs);

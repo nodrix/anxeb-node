@@ -47,6 +47,12 @@ module.exports = function (params) {
 		service : function (params, name) {
 			let service = new Service(_self, params);
 			if (service.active === undefined || service.active === true) {
+				if (params.key != null && params.key.indexOf('.') > -1) {
+					let parts = params.key.split('.');
+					_self.services[parts[1]] = _self.services[parts[1]] || {};
+					_self.services[parts[1]][parts[0]] = _self.services[parts[1]][parts[0]] || service;
+				}
+
 				_self.services[params.key || name] = service;
 				_services.push(service.start);
 			}
@@ -113,7 +119,7 @@ module.exports = function (params) {
 		}
 
 		try {
-			if (_self.structure && _self.structure.services && typeof _self.structure.services === 'string') {
+			if (_self.structure && _self.structure.services) {
 				utils.internal.modules.list(_self.locate.services()).map(function (service) {
 					_self.include.service(service.module);
 				});
