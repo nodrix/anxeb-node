@@ -10,10 +10,17 @@ const requestpn = require('request-promise-native');
 module.exports = {
 	instance : function (service, settings) {
 		let _self = this;
-		let _sio = sio(http.createServer(service.express));
-
 		_self.service = service;
 		_self.settings = settings || {};
+
+		let _sio = sio(http.createServer(service.express), {
+			path         : _self.settings.path || '/',
+			serveClient  : false,
+			pingInterval : _self.settings.pingInterval != null ? _self.settings.pingInterval : 10000,
+			pingTimeout  : _self.settings.pingTimeout != null ? _self.settings.pingTimeout : 5000,
+			cookie       : false
+		});
+
 		_self.host = _self.settings.host || ip.address() || '127.0.0.1';
 		_self.port = _self.settings.port || '8080';
 		_self.protocol = _self.settings.protocol || 'http';
