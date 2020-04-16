@@ -25,6 +25,7 @@ module.exports = function (params) {
 	_self.log.separator();
 
 	_self.name = params.name;
+	_self.version = params.version;
 	_self.description = params.description;
 	_self.key = params.key;
 	_self.settings = params.settings;
@@ -35,7 +36,7 @@ module.exports = function (params) {
 	let _baseServices = params.services;
 	let _packageFile = _self.locate.item('/package.json');
 
-	if (utils.general.file.exists(_packageFile)) {
+	if (_self.version == null && utils.general.file.exists(_packageFile)) {
 		_self.version = 'v' + require(_self.locate.item('/package.json')).version || null;
 	}
 	_self.services = {};

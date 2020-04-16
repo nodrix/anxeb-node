@@ -105,6 +105,7 @@ module.exports = function (server, params) {
 	_self.settings = params.settings;
 	_self.server = server;
 	_self.name = params.name;
+	_self.version = params.version;
 	_self.key = params.key;
 	_self.domain = params.domain;
 	_self.active = params.active;

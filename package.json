@@ -1,6 +1,6 @@
 {
 	"name": "anxeb",
-	"version": "1.5.12",
+	"version": "1.5.13",
 	"description": "Highly scalable Nodejs web application bundle.",
 	"main": "index.js",
 	"scripts": {
