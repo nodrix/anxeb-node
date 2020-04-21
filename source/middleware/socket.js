@@ -26,21 +26,31 @@ module.exports = {
 
 		let _origin = _cors.origin;
 		let _headers = _cors.exposedHeaders || [];
+		let _methods = _cors.methods;
+		let _credentials = _cors.credentials;
+		let _maxAge = _cors.maxAge;
 
 		_headers.push('Content-Type');
 		_headers.push('Authorization');
 		_headers.push('Room');
-
-		if (_origin) {
-			_options.origins = _origin;
-		}
+		_headers.push('Origin');
+		_headers.push('Accept');
 
 		_options.handlePreflightRequest = function (req, res) {
-			const headers = {
-				'Access-Control-Allow-Headers'     : _headers.join(', '),
-				'Access-Control-Allow-Origin'      : _origin || req.headers.origin,
-				'Access-Control-Allow-Credentials' : true
-			};
+			const headers = {};
+
+			headers['Access-Control-Allow-Headers'] = _headers.join(', ');
+			headers['Access-Control-Allow-Credentials'] = _credentials != null ? _credentials : true;
+
+			if (_origin || req.headers.origin) {
+				headers['Access-Control-Allow-Origin'] = _origin != null && _origin instanceof Array ? _origin.join(', ') : (_origin || req.headers.origin);
+			}
+			if (_methods) {
+				headers['Access-Control-Allow-Methods'] = _methods instanceof Array ? _methods.join(', ') : _methods;
+			}
+			if (_maxAge) {
+				headers['Access-Control-Max-Age'] = _maxAge instanceof Array ? _maxAge.join(', ') : _maxAge;
+			}
 			res.writeHead(200, headers);
 			res.end();
 		};

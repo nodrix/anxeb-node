@@ -180,6 +180,13 @@ module.exports = {
 			} : _self.settings.upload));
 		}
 
+		if (_self.settings.includes) {
+			for (let key in _self.settings.includes) {
+				let func =_self.settings.includes[key];
+				_self.service.express.use(func);
+			}
+		}
+
 		if (_self.settings.cors !== undefined && _self.settings.cors !== false) {
 			_self.service.express.use(_self.settings.cors === true ? cors() : cors(_self.settings.cors));
 		}

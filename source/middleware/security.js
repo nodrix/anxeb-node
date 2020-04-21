@@ -38,13 +38,14 @@ module.exports = {
 		};
 
 		if (_self.settings.session) {
-			_self.service.express.use(session({
-				name              : _self.settings.session.name || 'anxeb',
-				secret            : _self.settings.session.secret || '4nx3b',
-				store             : _self.settings.session.redis ? new RedisStore(_self.settings.session.redis) : null,
-				resave            : _self.settings.session.resave || false,
-				saveUninitialized : true
-			}));
+			let _settings = utils.general.data.copy(_self.settings.session);
+			_settings.name = _settings.name || 'anxeb';
+			_settings.secret = _settings.secret || '4nx3b'
+			_settings.store = _settings.store || (_settings.redis ? new RedisStore(_settings.redis) : null);
+			_settings.resave = _settings.resave != null ? _settings.resave : false;
+			_settings.saveUninitialized = _settings.saveUninitialized != null ? _settings.saveUninitialized : true;
+
+			_self.service.express.use(session(_settings));
 		}
 
 		if (_self.settings.keys) {
