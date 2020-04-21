@@ -1,27 +1,51 @@
 'use strict';
 
-const Client = require('./client').instance;
+const Namespace = require('./namespace').instance;
 const http = require('http');
-const sio = require('socket.io');
 const request = require('request');
 const ip = require('ip');
 const requestpn = require('request-promise-native');
+const Stack = require('../common/stack').instance;
 
 module.exports = {
 	instance : function (service, settings) {
 		let _self = this;
 		_self.service = service;
 		_self.settings = settings || {};
-
-		let _sio = _self.settings.options ? sio(http.createServer(service.express), _self.settings.options) : sio(http.createServer(service.express));
-
 		_self.host = _self.settings.host || ip.address() || '127.0.0.1';
 		_self.port = _self.settings.port || '8080';
 		_self.protocol = _self.settings.protocol || 'http';
-		_self.callbacks = {};
-		_self.clients = [];
 		_self.uri = (_self.protocol ? _self.protocol : 'http') + '://' + _self.host + ':' + _self.port;
+		_self.namespaces = {};
+		_self.server = http.createServer(service.express);
 
+		let _options = _self.settings.options || {};
+		let _cors = _self.settings.cors || {};
+
+		_options.serveClient = false;
+
+		let _origin = _cors.origin;
+		let _headers = _cors.exposedHeaders || [];
+
+		_headers.push('Content-Type');
+		_headers.push('Authorization');
+		_headers.push('Room');
+
+		if (_origin) {
+			_options.origins = _origin;
+		}
+
+		_options.handlePreflightRequest = function (req, res) {
+			const headers = {
+				'Access-Control-Allow-Headers'     : _headers.join(', '),
+				'Access-Control-Allow-Origin'      : _origin || req.headers.origin,
+				'Access-Control-Allow-Credentials' : true
+			};
+			res.writeHead(200, headers);
+			res.end();
+		};
+
+		_self.io = require('socket.io')(_self.server, _options);
 		let _request = requestpn;
 
 		_self.do = {
@@ -31,43 +55,35 @@ module.exports = {
 			delete : _request.delete
 		};
 
-		_self.emit = function (key, data) {
-			_sio.emit(key, data);
-		};
+		_self.io.of(function (name, query, next) {
+			let err = _self.service.log.exception.namespace_not_found.args(name).print().toError();
+			return next(Error(JSON.stringify({
+				message : err.message,
+				route   : _self.service.log.route ? err.route : undefined,
+				code    : err.event !== undefined ? err.event.code : 0,
+				stack   : _self.service.log.stack ? new Stack(err).substract.main() : undefined,
+				meta    : err.meta !== undefined ? err.meta : undefined,
+				inner   : null
+			})));
+		});
 
 		_self.include = {
-			callback : function (name, module) {
+			namespace : function (name, module) {
 				if (module) {
-					let cb = {};
-					let getType = {};
-					if (getType.toString.call(module) === '[object Function]') {
-						cb.name = name;
-						cb.callback = module;
-					} else {
-						cb.name = module.name || name;
-						cb.callback = module.callback;
-					}
-					_self.callbacks[cb.name] = cb;
+					module.path = module.path || ('/' + name);
+					module.name = module.path.replaceAll('/', '');
+					_self.namespaces[module.name] = new Namespace(_self, module, _self.io);
 				}
 			}
 		};
 
-		_sio.on('connection', function (context) {
-			let client = new Client(_self, {
-				service : _self.service,
-				context : context,
-				index   : _self.clients.length
-			});
-
-			_self.clients.push(client);
-			context.on('disconnect', function () {
-				_self.clients.splice(_self.clients.indexOf(client), 1);
-			});
-		});
+		_self.of = function () {
+			return _self.io.of.apply(_self.io, Array.from(arguments));
+		}
 
 		_self.listen = function () {
 			return new Promise(function (resolve, reject) {
-				_sio.httpServer.listen(_self.port, _self.host, function () {
+				_self.io.httpServer.listen(_self.port, _self.host, function () {
 					_self.service.log.debug.service_started.args(_self.uri).print();
 					resolve();
 				}).on('error', function (err) {
@@ -78,9 +94,9 @@ module.exports = {
 		};
 
 		_self.init = function () {
-			if (_self.settings.callbacks) {
-				_self.service.fetch.modules(_self.settings.callbacks, 'socket callbacks').map(function (item) {
-					_self.include.callback(item.name, item.module);
+			if (_self.settings.namespaces) {
+				_self.service.fetch.modules(_self.settings.namespaces, 'socket namespaces').map(function (item) {
+					_self.include.namespace(item.name, item.module);
 				});
 			}
 		};

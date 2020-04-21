@@ -20,7 +20,7 @@ module.exports = {
 		let _func = func;
 
 		let dispatch = function (req, res, next, options) {
-			let bearer = _self.service.security.bearer(req, res);
+			let bearer = _self.service.security.route.bearer(req, res);
 
 			if ((!bearer || bearer.auth === null || bearer.auth === undefined) && _self.access === 'private') {
 				_self.service.log.exception.unauthorized_access.args(req.method, req.url).throw();
@@ -50,7 +50,7 @@ module.exports = {
 		});
 
 		_self.dispatch = function (req, res, next, options) {
-			_self.service.security.checkpoint({
+			_self.service.security.route.checkpoint({
 				access : _self.base.access || _self.route.access,
 				path   : _self.base.path || _self.route.path,
 				roles  : _self.base.roles || _self.route.roles,

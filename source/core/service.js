@@ -119,9 +119,9 @@ module.exports = function (server, params) {
 	_self.storage = new Storage(_self, _self.settings.storage);
 	_self.configuration = new Configuration(_self, _self.settings.configuration, params.configuration);
 	_self.renderer = new Renderer(_self, _self.settings.renderer);
-	_self.routing = new Routing(_self, _self.settings.routing);
 	_self.scheduler = new Scheduler(_self, _self.settings.scheduler);
 	_self.socket = new Socket(_self, _self.settings.socket);
+	_self.routing = new Routing(_self, _self.settings.routing);
 
 	_self.start = function () {
 		_self.log.break();

@@ -86,20 +86,6 @@ module.exports = {
 			});
 		};
 
-		_self.bearer = function (req, res) {
-			let bearer = (req.session && req.session.bearer) || res.bearer || null;
-			if (!bearer && req.headers && req.headers.authorization) {
-				bearer = {
-					token : req.headers.authorization.substring(7)
-				}
-			}
-
-			if (bearer && bearer.token) {
-				bearer.auth = _self.service.security.keys.decode(bearer.token);
-			}
-			return bearer;
-		};
-
 		_self.canAccess = function (params) {
 			let methodName = params.request.method.toLowerCase();
 
@@ -193,50 +179,107 @@ module.exports = {
 			}
 		};
 
-		_self.checkpoint = function (params, req, res, next) {
-			return new Promise(function (resolve) {
-				if (params.access === accessType.private) {
-					let bearer = _self.bearer(req, res);
-					if (bearer && bearer.token) {
-						if (_self.keys) {
-							_self.keys.verify(bearer.token).then(function (auth) {
-								if (!auth.body.roles || !auth.body.claims || !_self.canAccess({
-									identity : {
-										claims : auth.body.claims,
-										roles  : auth.body.roles,
-										type   : auth.body.type
-									},
-									request  : {
-										roles  : params.roles,
-										owners : params.owners,
-										path   : params.path,
-										method : req.method
-									}
-								})) {
-									_self.service.log.exception.unauthorized_access.args(req.method, req.url).throw({ next : next });
-								} else {
-									resolve();
+		let _handleException = function (exception, internal) {
+			if (internal.printException) {
+				if (internal.next) {
+					exception.print().throw({ next : internal.next });
+				} else {
+					exception.print().throw();
+				}
+			} else if (internal.next) {
+				exception.throw({ next : internal.next });
+			} else {
+				exception.throw();
+			}
+		};
+
+		let _checkpoint = async function (params, internal) {
+			if (params.access === accessType.private) {
+				let bearer = internal.bearer;
+				if (bearer && bearer.token) {
+					if (_self.keys) {
+						try {
+							let auth = await _self.keys.verify(bearer.token);
+							if (!auth.body.roles || !auth.body.claims || !_self.canAccess({
+								identity : {
+									claims : auth.body.claims,
+									roles  : auth.body.roles,
+									type   : auth.body.type
+								},
+								request  : {
+									roles  : params.roles,
+									owners : params.owners,
+									path   : params.path,
+									method : internal.method
 								}
-							}).catch(function (err) {
-								if (err.message === 'jwt expired') {
-									if (req.session != null) {
-										req.session.bearer = null;
-									}
-									_self.service.log.exception.expired_token.throw({ next : next });
-								} else {
-									_self.service.log.exception.invalid_auth.args(err).throw({ next : next });
+							})) {
+								return _handleException(_self.service.log.exception.unauthorized_access.args(internal.method, internal.url), internal);
+							}
+						} catch (err) {
+							if (err.message === 'jwt expired') {
+								if (internal.session != null) {
+									internal.session.bearer = null;
 								}
-							});
-						} else {
-							_self.service.log.exception.security_keys_not_defined.throw({ next : next });
+								return _handleException(_self.service.log.exception.expired_token, internal);
+							} else {
+								return _handleException(_self.service.log.exception.invalid_auth.args(err), internal);
+							}
 						}
 					} else {
-						_self.service.log.exception.unauthorized_access.args(req.method, req.url).throw({ next : next });
+						return _handleException(_self.service.log.exception.security_keys_not_defined, internal);
 					}
 				} else {
-					resolve();
+					return _handleException(_self.service.log.exception.unauthorized_access.args(internal.method, internal.url), internal);
 				}
-			});
+			}
+		};
+
+		_self.route = {
+			checkpoint : async function (params, req, res, next) {
+				return await _checkpoint(params, {
+					session : req.session,
+					bearer  : _self.route.bearer(req, res),
+					url     : req.url,
+					method  : req.method,
+					next    : next
+				});
+			},
+			bearer     : function (req, res) {
+				let bearer = (req.session && req.session.bearer) || res.bearer || null;
+				if (!bearer && req.headers && req.headers.authorization) {
+					bearer = {
+						token : req.headers.authorization.substring(7)
+					}
+				}
+
+				if (bearer && bearer.token) {
+					bearer.auth = _self.service.security.keys.decode(bearer.token);
+				}
+				return bearer;
+			}
+		};
+
+		_self.socket = {
+			checkpoint : async function (params) {
+				return await _checkpoint(params, {
+					session        : null,
+					bearer         : _self.socket.bearer(params.authorization),
+					url            : params.url,
+					method         : params.method,
+					next           : null,
+					printException : params.printException
+				});
+			},
+			bearer     : function (authorization) {
+				let bearer = authorization ? {
+					token : authorization.substring(7)
+				} : null;
+
+				if (bearer && bearer.token) {
+					bearer.auth = _self.service.security.keys.decode(bearer.token);
+				}
+				return bearer;
+			}
 		};
 	}
 };

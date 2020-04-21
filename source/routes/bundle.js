@@ -70,7 +70,7 @@ module.exports = function (routing, settings) {
 			if (bundle.path && !utils.general.file.exists(bundle.path)) {
 				_self.service.log.exception.bundle_not_found.args(requestedBundle, _self.service.key).throw();
 			} else {
-				_self.security.checkpoint({
+				_self.security.route.checkpoint({
 					access : bundle.access,
 					path   : '/' + requestedBundle
 				}, req, res, next).then(function () {

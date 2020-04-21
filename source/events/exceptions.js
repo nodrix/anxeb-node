@@ -170,7 +170,12 @@ module.exports = {
 	},
 	session_management_inactive       : {
 		message : 'Session management not activated.',
-		code    : 46019,
+		code    : 6019,
 		type    : eventTypes.http_error
+	},
+	namespace_not_found               : {
+		message : 'Socket namespace \'[0]\' not registered on service.',
+		code    : 6020,
+		type    : eventTypes.service_exception
 	},
 };

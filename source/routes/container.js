@@ -42,7 +42,7 @@ module.exports = function (routing, settings) {
 		if (isPublic !== null) {
 			let containerAccess = isPublic ? accessType.public : accessType.private;
 
-			_self.security.checkpoint({
+			_self.security.route.checkpoint({
 				access : containerAccess,
 				path   : utils.general.path.join(_self.path, requestedContainer)
 			}, req, res, next).then(function () {

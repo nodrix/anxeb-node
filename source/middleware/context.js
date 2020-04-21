@@ -26,20 +26,35 @@ module.exports = {
 
 		if (_self.route.routing.settings.context) {
 			if (_self.route.routing.settings.context.properties) {
-				for (let m in _self.route.routing.settings.context.properties) {
-					Object.defineProperty(_self, m, {
-						get : _self.route.routing.settings.context.properties[m]
-					});
+				for (let key in _self.route.routing.settings.context.properties) {
+					let obj = _self.route.routing.settings.context.properties[key];
+
+					if (typeof obj === 'function') {
+						Object.defineProperty(_self, key, {
+							get : function () {
+								return obj(_self);
+							}
+						});
+					} else {
+						_self[key] = obj;
+					}
 				}
 			}
 
 			if (_self.route.routing.settings.context.methods) {
-				for (let m in _self.route.routing.settings.context.methods) {
-					let obj = _self.route.routing.settings.context.methods[m];
+				for (let key in _self.route.routing.settings.context.methods) {
+					let obj = _self.route.routing.settings.context.methods[key];
+
 					if (typeof obj === 'function') {
-						_self[m] = obj(_self);
+						_self[key] = function () {
+							let args = Array.from(arguments);
+							args.unshift(_self);
+							return obj.apply(_self.route.routing.settings.context.methods, args);
+						}
 					} else {
-						_self[m] = obj;
+						_self[key] = function () {
+							return obj;
+						}
 					}
 				}
 			}

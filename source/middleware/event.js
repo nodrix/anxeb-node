@@ -39,6 +39,7 @@ module.exports = {
 			_colorMessage = _self.message;
 			_self.code = params.code;
 			_self.meta = params.meta;
+			_self.source = params.source;
 			_self.type = params.type;
 			_self.color = params.color || (_self.type === module.exports.types.debug_log ? 'green' : 'redBright');
 			_self.style = params.style || null;
@@ -282,7 +283,8 @@ module.exports = {
 			let err = new Error(this.message);
 			err.inner = _self.error;
 			err.event = _self;
-			err.exit = params !== undefined ? params.exit || false : false;
+			err.exit = params != null ? params.exit || false : false;
+			err.source = params && params.source ? params.source : _self.source;
 			err.meta = params && params.meta ? params.meta : _self.meta;
 			err.silent = params != null ? params.silent : false;
 
@@ -304,6 +306,30 @@ module.exports = {
 			}
 			return err;
 		};
+
+		_self.toClient = function (params) {
+			let _error = _self.toError(params);
+			let _service = params ? params.service : null;
+
+			let result = {
+				message : _self.message,
+				code    : _self.code,
+				type    : _self.type || 'error'
+			}
+
+			if (_error.meta != null || _self.meta) {
+				result.meta = _error.meta || _self.meta;
+			}
+
+			if (_error.source != null || _self.source) {
+				result.source = _error.source || _self.source;
+			}
+
+			if (_service && _service.log.stack) {
+				result.stack = new Stack(_error).substract.main();
+			}
+			return result;
+		}
 
 	}
 };

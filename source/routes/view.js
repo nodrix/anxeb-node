@@ -15,7 +15,7 @@ module.exports = function (routing, settings) {
 		let route = _self.routing.retrieve.byView(requestedView);
 
 		if (route) {
-			_self.security.checkpoint({
+			_self.security.route.checkpoint({
 				access : route.access,
 				path   : route.path,
 				roles  : route.roles,

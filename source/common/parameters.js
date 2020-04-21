@@ -154,7 +154,7 @@ const parameters = {
 			process('settings.log.file');
 			process('settings.log.events');
 			process('settings.configuration.file');
-			process('settings.socket.callbacks');
+			process('settings.socket.namespaces');
 			process('settings.scheduler.jobs');
 			process('settings.routing.routes');
 			process('settings.routing.actions');

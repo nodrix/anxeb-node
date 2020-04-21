@@ -43,10 +43,23 @@ const Route = {
 		_self.methods = {};
 
 		let _methods = params.methods;
+		let _socket = params.socket;
+
+		if (_socket && _socket.callbacks) {
+			_self.service.socket.include.namespace(_self.name, {
+				path      : _socket.path || _self.path,
+				access    : _self.access,
+				owners    : _self.owners,
+				roles     : _self.roles,
+				client    : _socket.client,
+				callbacks : _socket.callbacks,
+				context   : _socket.context
+			});
+		}
 
 		if (_self.routing.base) {
 			_self.routing.mount.route(_self.path).all(function (req, res, next) {
-				let bearer = _self.service.security.bearer(req, res);
+				let bearer = _self.service.security.route.bearer(req, res);
 				res.set('route_type', _self.type);
 				res.set('Access-Type', _self.access);
 
@@ -72,7 +85,7 @@ const Route = {
 		const getBase = function (path, access, roles, owners) {
 			return {
 				route  : _self.routing.mount.route(path).all(function (req, res, next) {
-					_self.service.security.checkpoint({
+					_self.service.security.route.checkpoint({
 						access : access,
 						path   : path,
 						roles  : roles,
