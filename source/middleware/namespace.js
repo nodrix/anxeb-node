@@ -90,7 +90,7 @@ module.exports = {
 			_self.clients.push($client);
 
 			if (_settings.client && _settings.client.connected) {
-				_settings.client.connected($client);
+				_settings.client.connected($client.context(), $client);
 			}
 		});
 	}

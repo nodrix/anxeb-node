@@ -32,7 +32,8 @@ module.exports = {
 
 		_headers.push('Content-Type');
 		_headers.push('Authorization');
-		_headers.push('Room');
+		_headers.push('Client-Room');
+		_headers.push('Client-Key');
 		_headers.push('Origin');
 		_headers.push('Accept');
 

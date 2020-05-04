@@ -17,31 +17,35 @@ module.exports = {
 		_self.state = 'connected';
 		_self.meta = {};
 		_self.room = null;
+		_self.key = null;
 
 		let _settings = params.settings;
 
-		let _getContext = function () {
+		_self.context = function () {
 			let _context = {
-				client    : _self,
-				log       : _self.service.log,
-				service   : _self.service,
-				root      : _self.namespace,
-				pipe      : _self.pipe,
-				bearer    : _self.bearer,
-				room      : _self.room,
-				to        : function () {
+				client      : _self,
+				log         : _self.service.log,
+				service     : _self.service,
+				application : _self.service.application,
+				root        : _self.namespace,
+				pipe        : _self.pipe,
+				bearer      : _self.bearer,
+				room        : _self.room,
+				key         : _self.key,
+				id          : _self.id,
+				to          : function () {
 					return _self.namespace.to.apply(_self.namespace, Array.from(arguments));
 				},
-				in        : function () {
+				in          : function () {
 					return _self.namespace.in.apply(_self.namespace, Array.from(arguments));
 				},
-				of        : function () {
+				of          : function () {
 					return _self.namespace.of.apply(_self.namespace, Array.from(arguments));
 				},
-				emit      : function () {
+				emit        : function () {
 					return _self.namespace.emit.apply(_self.namespace, Array.from(arguments));
 				},
-				broadcast : function () {
+				broadcast   : function () {
 					return _self.pipe.broadcast.emit.apply(_self.pipe.broadcast, Array.from(arguments));
 				}
 			};
@@ -157,19 +161,23 @@ module.exports = {
 
 		_self.bearer = _self.pipe.handshake.headers.authorization ? _self.service.security.socket.bearer(_self.pipe.handshake.headers.authorization) : null;
 
-		if (_self.headers.room != null) {
+		if (_self.headers['client-room'] != null) {
 			_self.pipe.join(_self.headers.room, function () {
 				_self.room = _self.headers.room;
 				if (_settings.client && _settings.client.joined) {
-					_settings.client.joined(_getContext(), _self.headers.room);
+					_settings.client.joined(_self.context(), _self.headers.room);
 				}
 			});
+		}
+
+		if (_self.headers['client-key'] != null) {
+			_self.key = _self.headers['client-key'];
 		}
 
 		_self.pipe.on('join_room', function (room) {
 			_self.pipe.join(room, function () {
 				if (_settings.client && _settings.client.joined) {
-					_settings.client.joined(_getContext(), room);
+					_settings.client.joined(_self.context(), room);
 				}
 			});
 		});
@@ -177,7 +185,7 @@ module.exports = {
 		_self.pipe.on('leave_room', function (room) {
 			_self.pipe.leave(room, function () {
 				if (_settings.client && _settings.client.left) {
-					_settings.client.left(_getContext(), room);
+					_settings.client.left(_self.context(), room);
 				}
 			});
 		});
@@ -185,7 +193,7 @@ module.exports = {
 		_self.pipe.on('error', (error) => {
 			_self.error = error;
 			if (_settings.client && _settings.client.error) {
-				_settings.client.error(_getContext(), error);
+				_settings.client.error(_self.context(), error);
 			}
 		});
 
@@ -195,7 +203,7 @@ module.exports = {
 			_self.dispose();
 
 			if (_settings.client && _settings.client.disconnect) {
-				_settings.client.disconnect(_getContext(), _self);
+				_settings.client.disconnect(_self.context(), _self);
 			}
 		});
 
@@ -204,7 +212,7 @@ module.exports = {
 			_self.pipe.disconnect(true);
 			_self.namespace.clients.splice(_self.namespace.clients.indexOf(_self), 1);
 			if (_settings.client && _settings.client.disposed) {
-				_settings.client.disposed(_getContext(), _self);
+				_settings.client.disposed(_self.context(), _self);
 			}
 		}
 
@@ -213,7 +221,7 @@ module.exports = {
 
 			_self.pipe.on(key, function () {
 				let args = Array.from(arguments);
-				args.unshift(_getContext());
+				args.unshift(_self.context());
 
 				let resolve = null;
 				if (args.length > 1) {
