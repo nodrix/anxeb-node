@@ -161,11 +161,13 @@ module.exports = {
 
 		_self.bearer = _self.pipe.handshake.headers.authorization ? _self.service.security.socket.bearer(_self.pipe.handshake.headers.authorization) : null;
 
-		if (_self.headers['client-room'] != null) {
-			_self.pipe.join(_self.headers.room, function () {
-				_self.room = _self.headers.room;
+		let _room = _self.headers['client-room'];
+
+		if (_room != null) {
+			_self.pipe.join(_room, function () {
+				_self.room = _room;
 				if (_settings.client && _settings.client.joined) {
-					_settings.client.joined(_self.context(), _self.headers.room);
+					_settings.client.joined(_self.context(), _self, _self.room);
 				}
 			});
 		}
@@ -177,7 +179,7 @@ module.exports = {
 		_self.pipe.on('join_room', function (room) {
 			_self.pipe.join(room, function () {
 				if (_settings.client && _settings.client.joined) {
-					_settings.client.joined(_self.context(), room);
+					_settings.client.joined(_self.context(), _self, room);
 				}
 			});
 		});
@@ -185,7 +187,7 @@ module.exports = {
 		_self.pipe.on('leave_room', function (room) {
 			_self.pipe.leave(room, function () {
 				if (_settings.client && _settings.client.left) {
-					_settings.client.left(_self.context(), room);
+					_settings.client.left(_self.context(), _self, room);
 				}
 			});
 		});
@@ -193,7 +195,7 @@ module.exports = {
 		_self.pipe.on('error', (error) => {
 			_self.error = error;
 			if (_settings.client && _settings.client.error) {
-				_settings.client.error(_self.context(), error);
+				_settings.client.error(_self.context(), _self, error);
 			}
 		});
 

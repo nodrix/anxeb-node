@@ -32,10 +32,6 @@ module.exports = {
 			return _self.context.in.apply(_self.context, Array.from(arguments));
 		}
 
-		_self.of = function () {
-			return _self.context.of.apply(_self.context, Array.from(arguments));
-		}
-
 		_self.emit = function () {
 			_self.context.emit.apply(_self.context, Array.from(arguments));
 			return _self;
