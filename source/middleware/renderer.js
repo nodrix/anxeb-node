@@ -191,16 +191,33 @@ module.exports = {
 				_self.service.express.set('view engine', _self.settings.extension);
 			}
 
+			let staticPaths = [];
 			if (_self.settings.static) {
-				if (utils.general.file.exists(_self.settings.static)) {
-					_self.service.express.use(express.static(_self.settings.static));
-
-					_self.read = function (filePath) {
-						let finalPath = utils.general.path.join(_self.settings.static, filePath);
-						return utils.internal.file.read(finalPath);
-					};
+				if (_self.settings.static instanceof Array) {
+					staticPaths = _self.settings.static;
 				} else {
-					_self.service.log.exception.parameter_path_not_found.args(_self.settings.static).throw();
+					staticPaths = [_self.settings.static];
+				}
+			}
+
+			_self.read = function (filePath) {
+				for (let i = 0; i < staticPaths.length; i++) {
+					let staticPath = staticPaths[i];
+					let finalPath = utils.general.path.join(staticPath, filePath);
+
+					if (utils.general.file.exists(finalPath)) {
+						return utils.internal.file.read(finalPath);
+					}
+				}
+				return null;
+			};
+
+			for (let i = 0; i < staticPaths.length; i++) {
+				let staticPath = staticPaths[i];
+				if (utils.general.file.exists(staticPath)) {
+					_self.service.express.use(express.static(staticPath));
+				} else {
+					_self.service.log.exception.parameter_path_not_found.args(staticPath).throw();
 				}
 			}
 

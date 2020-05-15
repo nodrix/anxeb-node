@@ -209,18 +209,22 @@ module.exports = {
 					isInner : true
 				});
 				let stackString = _stackTrace ? stack.substract.main('\n  ' + String('  ').repeat(level)) : '\n';
-
 				let space = String('  ').repeat(level) + '\u2514\u2574';
+				let message = err.event ? err.event.message : err.message;
+
+				if (message.indexOf('\n') > -1) {
+					message = message.substr(0, message.indexOf('\n') - 1);
+				}
 
 				if (err.event) {
 					return {
-						clcText : clc.redBright(space + err.event.message + ' Error code ' + err.event.code + '.') + stackString,
-						logText : space + err.event.message + ' Error code ' + err.event.code + '.' + (stackString ? stackString : '\n')
+						clcText : clc.redBright(space + message + ' Error code ' + err.event.code + '.') + stackString,
+						logText : space + message + ' Error code ' + err.event.code + '.' + (stackString ? stackString : '\n')
 					}
 				} else {
 					return {
-						clcText : space + clc.redBright(err.message) + stackString,
-						logText : space + err.message + (stackString ? stackString : '\n')
+						clcText : space + clc.redBright(message) + stackString,
+						logText : space + message + (stackString ? stackString : '\n')
 					}
 				}
 			};

@@ -1,14 +1,11 @@
 {
-	"name": "anxeb",
-	"version": "1.7.2",
-	"description": "Highly scalable Nodejs web application bundle.",
+	"name": "anxeb-node",
+	"version": "2.0.0",
+	"description": "Highly scalable NodeJS web application bundle.",
 	"main": "index.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/nodrix/anxeb.git"
+		"url": "git+https://github.com/nodrix/anxeb-node.git"
 	},
 	"keywords": [
 		"expressjs",
@@ -29,9 +26,9 @@
 	"author": "Eduardo Rosario <erosario@nodrix.com> (http://nodrix.com)",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/nodrix/anxeb/issues"
+		"url": "https://github.com/nodrix/anxeb-node/issues"
 	},
-	"homepage": "https://github.com/nodrix/anxeb#readme",
+	"homepage": "https://github.com/nodrix/anxeb-node#readme",
 	"dependencies": {
 		"bluebird": "^3.7.2",
 		"body-parser": "^1.19.0",
