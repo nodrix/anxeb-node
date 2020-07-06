@@ -11,6 +11,7 @@ const Storage = require('../middleware/storage').instance;
 const Configuration = require('../middleware/configuration').instance;
 const Security = require('../middleware/security').instance;
 const Renderer = require('../middleware/renderer').instance;
+const Locator = require('../common/locator').instance;
 
 module.exports = function (server, params) {
 	let _self = this;
@@ -114,7 +115,10 @@ module.exports = function (server, params) {
 	_self.application = {};
 	_self.extensions = params.extensions;
 	_self.client = _self.settings ? _self.settings.client : null;
-	_self.locate = _self.server.locate;
+	_self.locate = new Locator(_self.server.settings.root, _self.server.structure, {
+		storage : _self.settings.storage != null ? _self.settings.storage.sub_folder : null
+	});
+
 	_self.security = new Security(_self, _self.settings.security);
 	_self.storage = new Storage(_self, _self.settings.storage);
 	_self.configuration = new Configuration(_self, _self.settings.configuration, params.configuration);

@@ -17,22 +17,23 @@ module.exports = {
 		}));
 
 		_self.save = function (filePath, text) {
-			utils.internal.file.write(_self.service.locate.storage(_self.sub_folder, filePath), {
+			utils.internal.file.write(_self.service.locate.storage(filePath), {
 				text    : text,
 				replace : true
 			});
 		};
 
 		_self.fetch = function (filePath, options) {
-			return utils.internal.file.fetch(_self.service.locate.storage(_self.sub_folder, filePath), options);
+			return utils.internal.file.fetch(_self.service.locate.storage(filePath), options);
 		};
 
 		_self.read = function (filePath) {
-			return utils.internal.file.read(_self.service.locate.storage(_self.sub_folder, filePath));
+			return utils.internal.file.read(_self.service.locate.storage(filePath));
 		};
 
 		_self.exists = function (filePath) {
-			return utils.internal.file.exists(_self.service.locate.storage(_self.sub_folder, filePath));
+			return utils.internal.file.exists(_self.service.locate.storage(filePath));
 		};
+
 	}
 };

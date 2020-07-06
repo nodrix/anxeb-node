@@ -2,14 +2,17 @@
 
 const utils = require('../common/utils');
 
-const Locator = function (root, structure) {
+const Locator = function (root, structure, subfolders) {
 	let _self = this;
 
 	_self.structure = structure;
 	_self.root = root;
 
-	let getPath = function (args, from, allowArray) {
+	let getPath = function (args, from, allowArray, subfolder) {
 		let $paths = [];
+		if (subfolder) {
+			$paths.push(subfolder);
+		}
 		if (args) {
 			for (let a = 0; a < args.length; a++) {
 
@@ -74,7 +77,7 @@ const Locator = function (root, structure) {
 	};
 
 	_self.storage = function () {
-		return getPath(arguments, _self.structure.storage);
+		return getPath(arguments, _self.structure.storage, false, subfolders != null ? subfolders.storage : null);
 	};
 
 	_self.configs = function () {
