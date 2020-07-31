@@ -11,11 +11,6 @@ module.exports = {
 		_self.settings = settings || {};
 		_self.sub_folder = _self.settings.sub_folder;
 
-		_self.service.express.use(fileUpload({
-			limits       : { fileSize : _self.settings.upload_limit || 50 * 1024 * 1024 },
-			abortOnLimit : true
-		}));
-
 		_self.save = function (filePath, text) {
 			utils.internal.file.write(_self.service.locate.storage(filePath), {
 				text    : text,

@@ -173,16 +173,16 @@ module.exports = {
 			}
 		}
 
-		if (_self.settings.upload !== undefined && (_self.settings.upload !== false)) {
+		if (_self.settings.upload != null && (_self.settings.upload !== false)) {
 			_self.service.express.use(fileUpload(_self.settings.upload === true ? {
-				limits       : { fileSize : 50 * 1024 * 1024 },
+				limits       : { fileSize : 50000000 },
 				abortOnLimit : true
 			} : _self.settings.upload));
 		}
 
 		if (_self.settings.includes) {
 			for (let key in _self.settings.includes) {
-				let func =_self.settings.includes[key];
+				let func = _self.settings.includes[key];
 				_self.service.express.use(func);
 			}
 		}
