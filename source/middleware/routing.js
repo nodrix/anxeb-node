@@ -173,13 +173,6 @@ module.exports = {
 			}
 		}
 
-		if (_self.settings.upload != null && (_self.settings.upload !== false)) {
-			_self.service.express.use(fileUpload(_self.settings.upload === true ? {
-				limits       : { fileSize : 50000000 },
-				abortOnLimit : true
-			} : _self.settings.upload));
-		}
-
 		if (_self.settings.includes) {
 			for (let key in _self.settings.includes) {
 				let func = _self.settings.includes[key];
@@ -189,6 +182,14 @@ module.exports = {
 
 		if (_self.settings.cors !== undefined && _self.settings.cors !== false) {
 			_self.service.express.use(_self.settings.cors === true ? cors() : cors(_self.settings.cors));
+		}
+
+		if (_self.settings.upload != null && _self.settings.upload !== false) {
+			_self.service.express.use(fileUpload(_self.settings.upload === true ? {
+				limits        : { fileSize : 52428800 },
+				abortOnLimit  : true,
+				uploadTimeout : 1800000
+			} : _self.settings.upload));
 		}
 
 		_self.service.express.use(_self.router);
