@@ -253,6 +253,12 @@ module.exports = {
 					}
 				}
 
+				if (!bearer && req.query._token) {
+					bearer = {
+						token : req.query._token
+					}
+				}
+
 				if (bearer && bearer.token) {
 					bearer.auth = _self.service.security.keys.decode(bearer.token);
 				}
