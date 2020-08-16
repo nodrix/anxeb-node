@@ -127,7 +127,7 @@ module.exports = {
 					img = Buffer.from(data, 'base64');
 					_self.res.type('png');
 				} else {
-					_self.service.log.exception.invalid_image_data.throw(_self);
+					options = options || {};
 				}
 			}
 
