@@ -1,6 +1,5 @@
 'use strict';
 const utils = require('../common/utils');
-const sharp = require('sharp');
 const request = require('request');
 
 module.exports = {
@@ -114,44 +113,6 @@ module.exports = {
 			_self.res.send(payload);
 		};
 
-		_self.image = function (data, options) {
-			let img = data;
-
-			if (typeof data === 'string') {
-				if (data.startsWith('data:image/jpeg;base64')) {
-					data = data.replace(/^data:image\/jpeg;base64,/, '');
-					img = Buffer.from(data, 'base64');
-					_self.res.type('jpeg');
-				} else if (data.startsWith('data:image/png;base64')) {
-					data = data.replace(/^data:image\/png;base64,/, '');
-					img = Buffer.from(data, 'base64');
-					_self.res.type('png');
-				} else {
-					options = options || {};
-				}
-			}
-
-			if (options) {
-				var imageSharp = sharp(img);
-
-				for (var action in options) {
-					let pars = options[action];
-					if (pars === false) {
-						imageSharp = imageSharp[action]();
-					} else {
-						imageSharp = imageSharp[action](pars);
-					}
-				}
-
-				imageSharp.toBuffer().then(function (result) {
-					_self.res.end(result);
-				}).catch(function (err) {
-					_self.service.log.exception.invalid_image_data.args(err).throw(_self);
-				});
-			} else {
-				_self.res.end(img);
-			}
-		};
 
 		_self.file = function (filePath, options) {
 			_self.res.sendFile(filePath, options)

@@ -1,6 +1,6 @@
 {
 	"name": "anxeb-node",
-	"version": "2.0.5",
+	"version": "2.1.0",
 	"description": "Highly scalable NodeJS web application bundle.",
 	"main": "index.js",
 	"repository": {
@@ -20,8 +20,7 @@
 		"https",
 		"jwt",
 		"momentjs",
-		"async",
-		"sharp"
+		"async"
 	],
 	"author": "Eduardo Rosario <erosario@nodrix.com> (http://nodrix.com)",
 	"license": "MIT",
@@ -37,7 +36,7 @@
 		"cors": "^2.8.5",
 		"express": "^4.17.1",
 		"express-fileupload": "^1.1.6",
-		"express-hbs": "^2.3.3",
+		"express-hbs": "^2.3.4",
 		"express-session": "^1.17.0",
 		"fs": "0.0.1-security",
 		"handlebars": "^4.7.6",
@@ -53,7 +52,6 @@
 		"request": "^2.88.2",
 		"request-promise-native": "^1.0.8",
 		"serve-favicon": "^2.5.0",
-		"sharp": "^0.22.1",
 		"socket.io": "^2.3.0",
 		"url-parse": "^1.4.7",
 		"uuid": "^3.4.0"
