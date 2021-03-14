@@ -66,18 +66,6 @@ module.exports = {
 			delete : _request.delete
 		};
 
-		_self.io.of(function (name, query, next) {
-			let err = _self.service.log.exception.namespace_not_found.args(name).print().toError();
-			return next(Error(JSON.stringify({
-				message : err.message,
-				route   : _self.service.log.route ? err.route : undefined,
-				code    : err.event !== undefined ? err.event.code : 0,
-				stack   : _self.service.log.stack ? new Stack(err).substract.main() : undefined,
-				meta    : err.meta !== undefined ? err.meta : undefined,
-				inner   : null
-			})));
-		});
-
 		_self.include = {
 			namespace : function (name, module) {
 				if (module) {

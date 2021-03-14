@@ -61,7 +61,6 @@ module.exports = {
 				roles          : _self.roles,
 				owners         : _self.owners,
 				url            : pipe.client.request.url,
-				method         : _self.path,
 				authorization  : pipe.handshake.headers.authorization,
 				printException : true
 			}).then(function () {
