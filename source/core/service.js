@@ -103,6 +103,7 @@ module.exports = function (server, params) {
 		}
 	};
 
+	_self.initialized = false;
 	_self.settings = params.settings;
 	_self.server = server;
 	_self.name = params.name;
@@ -138,9 +139,12 @@ module.exports = function (server, params) {
 			let beginListening = function () {
 				return new Promise(function (resolve, reject) {
 					_self.log.debug.service_starting.args(_self.key, _self.socket.host, _self.socket.port).print();
+					_self.initialized = false;
 					_self.socket.listen().then(function () {
 						try {
 							_self.scheduler.start();
+							_self.initialized = true;
+							_self.security.check();
 							resolve();
 						} catch (err) {
 							reject(err);

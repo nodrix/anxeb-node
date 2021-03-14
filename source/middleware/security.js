@@ -3,14 +3,17 @@
 const moment = require('moment');
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
+const redis = require('redis')
 const jwt = require('jsonwebtoken');
 const accessType = require('./route').access;
 const utils = require('../common/utils');
-const https = require('https');
 
 module.exports = {
 	instance : function (service, settings) {
 		let _self = this;
+
+		let _redisConnected = false;
+		let _redisClient = null;
 
 		_self.service = service;
 		_self.settings = settings || {};
@@ -36,17 +39,6 @@ module.exports = {
 				}
 			}
 		};
-
-		if (_self.settings.session) {
-			let _settings = utils.general.data.copy(_self.settings.session);
-			_settings.name = _settings.name || 'anxeb';
-			_settings.secret = _settings.secret || '4nx3b'
-			_settings.store = _settings.store || (_settings.redis ? new RedisStore(_settings.redis) : null);
-			_settings.resave = _settings.resave != null ? _settings.resave : false;
-			_settings.saveUninitialized = _settings.saveUninitialized != null ? _settings.saveUninitialized : true;
-
-			_self.service.express.use(session(_settings));
-		}
 
 		if (_self.settings.keys) {
 			let getKey = function (key) {
@@ -235,6 +227,12 @@ module.exports = {
 			}
 		};
 
+		_self.check = function () {
+			if (_redisConnected === true) {
+				_self.service.log.debug.redis_client_connected.args(_redisClient.connection_options.host, _redisClient.connection_options.port, _self.service.key).print();
+			}
+		}
+
 		_self.route = {
 			checkpoint : async function (params, req, res, next) {
 				return await _checkpoint(params, {
@@ -272,7 +270,7 @@ module.exports = {
 					session        : null,
 					bearer         : _self.socket.bearer(params.authorization),
 					url            : params.url,
-					method         : params.method,
+					method         : 'emit',
 					next           : null,
 					printException : params.printException
 				});
@@ -288,5 +286,48 @@ module.exports = {
 				return bearer;
 			}
 		};
+
+		if (_self.settings.session) {
+			let _settings = utils.general.data.copy(_self.settings.session);
+			_settings.name = _settings.name || 'anxeb';
+			_settings.secret = _settings.secret || '4nx3b'
+			_settings.resave = _settings.resave != null ? _settings.resave : false;
+			_settings.saveUninitialized = _settings.saveUninitialized != null ? _settings.saveUninitialized : true;
+
+			if (_settings.redis != null) {
+				let options = _settings.redis === true ? {} : _settings.redis
+				_redisClient = redis.createClient(options);
+
+				_redisClient.on('error', function (err) {
+					if (_redisConnected === true) {
+						_redisConnected = false;
+						if (_self.service.initialized) {
+							_self.service.log.exception.redis_client_error.args(err).print();
+						}
+					}
+				});
+
+				_redisClient.on('reconnecting', function () {
+					if (_redisConnected === false) {
+						if (_self.service.initialized === true) {
+							_self.service.log.debug.redis_client_reconnecting.args(_redisClient.connection_options.host, _redisClient.connection_options.port, _self.service.key).print();
+						}
+					}
+				});
+
+				_redisClient.on('connect', function () {
+					_redisConnected = true;
+					if (_self.service.initialized === true) {
+						_self.service.log.debug.redis_client_connected.args(_redisClient.connection_options.host, _redisClient.connection_options.port, _self.service.key).print();
+					}
+				});
+
+				delete _settings.redis;
+				_settings.store = new RedisStore({ client : _redisClient });
+				_self.service.express.use(session(_settings));
+			} else {
+				_self.service.express.use(session(_settings));
+			}
+		}
 	}
 };

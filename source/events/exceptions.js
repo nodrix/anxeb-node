@@ -178,4 +178,9 @@ module.exports = {
 		code    : 6020,
 		type    : eventTypes.service_exception
 	},
+	redis_client_error                : {
+		message : 'Redis client error.',
+		code    : 6011,
+		type    : eventTypes.service_exception
+	},
 };
