@@ -27,6 +27,7 @@ module.exports = function (params) {
 	_self.name = params.name;
 	_self.version = params.version;
 	_self.description = params.description;
+	_self.remark = params.remark;
 	_self.key = params.key;
 	_self.settings = params.settings;
 	_self.structure = params.structure;
@@ -43,6 +44,14 @@ module.exports = function (params) {
 	let _services = [];
 
 	_self.log.debug.server_initializing.args(_version, _self.description + (_self.version ? ' ' + _self.version : ''), _self.name, _self.key).print();
+	if (_self.remark && _self.remark.value) {
+		if (_self.remark.asterisk) {
+			_self.log.debug.server_remark_log_asterisk.args(_self.remark.key, _self.remark.value).print();
+		} else {
+			_self.log.debug.server_remark_log.args(_self.remark.key, _self.remark.value).print();
+		}
+	}
+	_self.log.break();
 
 	_self.include = {
 		service : function (params, name) {
