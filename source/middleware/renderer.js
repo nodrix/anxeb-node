@@ -179,6 +179,8 @@ module.exports = {
 					_self.service.express.set('views', _self.settings.templates.views);
 				}
 
+				_self.service.express.disable('view cache');
+
 				_self.service.express.engine(_self.settings.extension, _hbs.express4({
 					handlebars  : _handlebars,
 					extname     : _self.settings.extension,
