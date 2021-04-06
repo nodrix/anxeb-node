@@ -197,8 +197,8 @@ module.exports = {
 
 				let stackString = _stackTrace && _self.stack ? _self.stack.substract.main('\n') + (inner ? '' : '\n') : '';
 
-				let clcHeader = clc.whiteBright(_self.title + ' > ') + clcInstance('Error Code ' + _self.code.toString().padStart(4, '0') + ' / ' + _colorMessage) + stackString;
-				let logHeader = _self.title + ' > ' + 'Error Code ' + _self.code.toString().padStart(4, '0') + ' / ' + _self.message + stackString;
+				let clcHeader = clc.whiteBright(_self.title + ' > ') + clcInstance(clc.yellowBright('Exception ' + _self.code.toString()) + clc.whiteBright(' : ') + _colorMessage) + stackString;
+				let logHeader = _self.title + ' > ' + 'Exception ' + _self.code.toString() + ' : ' + _self.message + stackString;
 
 				clcText += clcHeader;
 				logText += logHeader;
@@ -208,7 +208,7 @@ module.exports = {
 				let stack = new Stack(err, {
 					isInner : true
 				});
-				let stackString = _stackTrace ? stack.substract.main('\n  ' + String('  ').repeat(level)) : '\n';
+				let stackString = _stackTrace ? stack.substract.main('\n  ' + String('  ').repeat(level)) : '';
 				let space = String('  ').repeat(level) + '\u2514\u2574';
 				let message = err.event ? err.event.message : err.message;
 
@@ -216,16 +216,18 @@ module.exports = {
 					message = message.substr(0, message.indexOf('\n') - 1);
 				}
 
-				if (err.event) {
-					return {
-						clcText : clc.redBright(space + message + ' Error code ' + err.event.code + '.') + stackString,
-						logText : space + message + ' Error code ' + err.event.code + '.' + (stackString ? stackString : '\n')
-					}
-				} else {
-					return {
-						clcText : space + clc.redBright(message) + stackString,
-						logText : space + message + (stackString ? stackString : '\n')
-					}
+				let $code = err.event ? err.event.code : err.code;
+				let $codeType = 'Internal Error';
+
+				if ($code != null && !isNaN($code) && parseInt($code) > 0) {
+					$codeType = `Exception ${$code}`;
+				} else if ($code != null && isNaN($code)) {
+					$codeType = $code;
+				}
+
+				return {
+					clcText : space + clc.yellowBright($codeType) + clc.whiteBright(' : ') + clc.redBright(message) + stackString,
+					logText : space + $codeType + ' : ' + message + (stackString ? stackString : '\n')
 				}
 			};
 

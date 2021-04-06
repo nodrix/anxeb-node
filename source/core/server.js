@@ -74,7 +74,9 @@ module.exports = function (params) {
 			if (err.event === undefined) {
 				_self.log.exception.unhandled_exception.args(err).print();
 			} else {
-				err.event.args(err).print();
+				if (err.silent !== true) {
+					err.event.print();
+				}
 			}
 
 			if (err.exit) {
