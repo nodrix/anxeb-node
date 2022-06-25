@@ -166,6 +166,7 @@ const parameters = {
 			process('settings.storage.sub_folder');
 			process('settings.security.keys.private');
 			process('settings.security.keys.public');
+			process('settings.i18n.directory');
 		},
 		custom  : function (params, prop, service) {
 			let value = parameters.value.get(params, prop);

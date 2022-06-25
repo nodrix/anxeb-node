@@ -21,7 +21,9 @@ module.exports = {
 	instance : function (params) {
 		let _self = this;
 		let _log = null;
+		let _context = params.context;
 
+		_self.key = params.key;
 		_self.title = [moment().format('hh:mm:ss a')];
 		_self.message = null;
 		_self.code = null;
@@ -47,6 +49,25 @@ module.exports = {
 
 			if (_log.identifier) {
 				_self.title = _self.title + ' / ' + _log.identifier;
+			}
+		}
+
+		if (_context != null && _context.label != null) {
+			let prefix;
+			if (_self.type === module.exports.types.debug_log ||
+				_self.type === module.exports.types.warning_log) {
+				prefix = 'debugs';
+			} else if (
+				_self.type === module.exports.types.information_alert ||
+				_self.type === module.exports.types.exclamation_alert) {
+				prefix = 'alerts';
+			} else {
+				prefix = 'exceptions';
+			}
+
+			const localeMsg = _context.label(`${prefix}.${_self.key}`);
+			if (localeMsg != null && localeMsg !== '') {
+				_self.message = localeMsg;
 			}
 		}
 
@@ -156,6 +177,9 @@ module.exports = {
 							_colorMessage = _self.message;
 						}
 					} else {
+						if (typeof value === 'string' && value.startsWith('labels.') && _context != null && _context.label != null) {
+							value = _context.label(value);
+						}
 						_self.message = replaceFeatures(_self.message, i, value, {
 							clear : true
 						});
@@ -264,8 +288,8 @@ module.exports = {
 		this.throw = function (params) {
 			let err = _self.toError(params);
 
-			if (params && params.next) {
-				params.next(err);
+			if (_context && _context.next) {
+				_context.next(err);
 			}
 
 			if (params == null || params.silent !== true) {

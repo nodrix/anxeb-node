@@ -15,7 +15,7 @@ module.exports = {
 		_self.next = call.next;
 		_self.bearer = call.bearer;
 		_self.socket = _self.service.socket;
-		_self.log = _self.service.log;
+		_self.log = _self.service.log.withContext(_self);
 		_self.session = _self.req.session;
 		_self.query = _self.req.query;
 		_self.params = _self.req.params;
@@ -74,7 +74,7 @@ module.exports = {
 				_self.service.renderer.compile(template, payload, options).then(function (html) {
 					_self.res.send(html);
 				}).catch(function (err) {
-					_self.service.log.exception.invalid_request.args(err).throw(_self);
+					_self.log.exception.invalid_request.args(err).throw();
 				});
 			} else {
 				if (_self.res.finished || _self.res.statusCode === 408) {
@@ -139,7 +139,7 @@ module.exports = {
 		};
 
 		_self.invalid = function () {
-			_self.service.log.exception.invalid_request.throw(this);
+			_self.log.exception.invalid_request.throw();
 		};
 
 		_self.redirect = function (page) {
@@ -164,7 +164,7 @@ module.exports = {
 			if (condition === true) {
 				return true;
 			} else {
-				_self.service.log.exception.unauthorized_access.args(_self.req.method, _self.req.url).throw(this);
+				_self.log.exception.unauthorized_access.args(_self.req.method, _self.req.url).throw();
 				return false;
 			}
 		};
@@ -172,7 +172,7 @@ module.exports = {
 		_self.login = function () {
 			if (_self.req.headers.authorization) {
 				if (_self.req.session == null) {
-					_self.service.log.exception.session_management_inactive.throw(this);
+					_self.log.exception.session_management_inactive.throw();
 					return null;
 				} else {
 					_self.req.session.bearer = {
@@ -212,5 +212,9 @@ module.exports = {
 			}
 			_self.req.pipe(request({ url : url, headers : headers })).pipe(_self.res);
 		};
+
+		if (_self.service.i18n) {
+			_self.label = _self.req.__;
+		}
 	}
 };

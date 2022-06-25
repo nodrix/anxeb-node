@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-
+const { I18n } = require('i18n')
 const utils = require('../common/utils');
 const Log = require('../middleware/log').instance;
 const Routing = require('../middleware/routing').instance;
@@ -119,6 +119,23 @@ module.exports = function (server, params) {
 	_self.locate = new Locator(_self.server.settings.root, _self.server.structure, {
 		storage : _self.settings.storage != null ? _self.settings.storage.sub_folder : null
 	});
+
+	if (_self.settings.i18n) {
+		_self.i18n = new I18n({
+			locales              : _self.settings.i18n.locales || ['es'],
+			directory            : _self.settings.i18n.directory,
+			defaultLocale        : _self.settings.i18n.default || 'es',
+			header               : _self.settings.i18n.header || 'accept-language',
+			retryInDefaultLocale : true,
+			objectNotation       : true,
+			missingKeyFn         : function (locale, value) {
+				return '';
+			},
+			updateFiles          : false
+		});
+
+		_self.express.use(_self.i18n.init);
+	}
 
 	_self.security = new Security(_self, _self.settings.security);
 	_self.storage = new Storage(_self, _self.settings.storage);

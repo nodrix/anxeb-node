@@ -1,6 +1,6 @@
 {
 	"name": "anxeb-node",
-	"version": "2.1.6",
+	"version": "2.1.7",
 	"description": "Highly scalable NodeJS web application bundle.",
 	"main": "index.js",
 	"repository": {
@@ -42,6 +42,7 @@
 		"handlebars": "^4.7.7",
 		"http": "0.0.0",
 		"https": "^1.0.0",
+		"i18n": "^0.15.0",
 		"ip": "^1.1.5",
 		"jsonwebtoken": "^8.5.1",
 		"mkpath": "^1.0.0",
