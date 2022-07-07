@@ -290,6 +290,8 @@ module.exports = {
 
 			if (_context && _context.next) {
 				_context.next(err);
+			} else if (params && params.next) {
+				params.next(err);
 			}
 
 			if (params == null || params.silent !== true) {
