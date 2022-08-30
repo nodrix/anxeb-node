@@ -54,6 +54,10 @@ module.exports = {
 				return _self.toEvent().throw(res);
 			};
 
+			_self.bubble = function (res) {
+				return _self.toEvent().bubble(res);
+			};
+
 			_self.print = function () {
 				return _self.toEvent().print();
 			};

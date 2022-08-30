@@ -304,6 +304,18 @@ module.exports = {
 			}
 		};
 
+		this.bubble = function (params) {
+			let err = _self.toError(params);
+
+			try {
+				throw err;
+			} catch (err) {
+				_self.stack = new Stack(err);
+				throw err;
+			}
+
+		};
+
 		this.exit = function () {
 			let err = _self.toError({
 				exit : true
