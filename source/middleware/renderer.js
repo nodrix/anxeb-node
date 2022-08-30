@@ -42,25 +42,42 @@ module.exports = {
 			}
 		};
 
-		_self.compile = function (mainTemplate, data, options) {
+		_self.compile = function (params, data, options) {
 			return new Promise(function (resolve, reject) {
 				try {
 					let hbs = Handlebars.create();
-					let partials = {};
-					let templateFile = _self.service.locate.source(mainTemplate);
-					let templateFolder = utils.general.path.dirname(templateFile);
-					let files = _self.service.fetch.templates(templateFolder);
+					let $params = {}
+
 					let mainContent = null;
 
-					for (let p = 0; p < files.length; p++) {
-						let file = files[p];
-						if (mainTemplate.endsWith(file.filePath)) {
-							mainContent = file.content;
+					if (typeof params === 'string') {
+						if (params.endsWith('hbs')) {
+							$params.hbs = _self.service.locate.source(params);
+							$params.root = utils.general.path.dirname($params.hbs);
+							mainContent = '';
 						} else {
-							partials[file.filePath.replace('.hbs', '')] = file.content;
+							$params.hbs = null;
+							$params.root = null;
+							mainContent = params;
 						}
+					} else {
+						$params = params;
+						mainContent = $params.content || '';
 					}
-					hbs.registerPartial(partials);
+
+					if ($params.root != null) {
+						let files = _self.service.fetch.templates(_self.service.locate.source($params.root));
+						let partials = {};
+						for (let p = 0; p < files.length; p++) {
+							let file = files[p];
+							if ($params.hbs != null && $params.hbs.endsWith(file.filePath)) {
+								mainContent = file.content;
+							} else {
+								partials[file.filePath.replace('.hbs', '')] = file.content;
+							}
+						}
+						hbs.registerPartial(partials);
+					}
 
 					if (options) {
 						if (options.decorators) {
