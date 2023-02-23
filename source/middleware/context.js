@@ -1,6 +1,6 @@
 'use strict';
 const utils = require('../common/utils');
-const request = require('request');
+const axios = require('axios');
 
 module.exports = {
 	instance : function (route, call, options) {
@@ -194,7 +194,7 @@ module.exports = {
 			}
 		};
 
-		_self.proxy = function (baseUri, path) {
+		_self.proxy = async function (baseUri, path) {
 			let url = null;
 			if (baseUri.endsWith('/')) {
 				baseUri = baseUri.substr(0, baseUri.length - 1);
@@ -207,14 +207,26 @@ module.exports = {
 			}
 
 			let headers = _self.req.headers;
+
 			if (_self.req.session && _self.req.session.bearer && _self.req.session.bearer.token) {
 				headers['Authorization'] = 'Bearer ' + _self.req.session.bearer.token;
 			}
-			_self.req.pipe(request({ url : url, headers : headers })).pipe(_self.res);
+
+			const axres = await axios({
+				url          : url,
+				method       : _self.req.method.toLowerCase(),
+				headers      : headers,
+				responseType : 'stream'
+			});
+
+			axres.data.end = function () { };
+
+			_self.req.pipe(axres.data).pipe(_self.res);
+
 		};
 
 		if (_self.service.i18n) {
-			_self.label = _self.req.__;
+			_self.translate = _self.req.__;
 		}
 	}
 };

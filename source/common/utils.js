@@ -9,17 +9,17 @@ const URL = require('url-parse');
 const parameters = require('./parameters');
 const moment = require('moment');
 const ip = require('ip');
-const request = require('request');
+const axios = require('axios');
 
 const utils = {
 	general  : {
-		ip      : ip,
-		https   : https,
-		path    : path,
-		fs      : fs,
-		moment  : moment,
-		request : request,
-		format  : {
+		ip     : ip,
+		https  : https,
+		path   : path,
+		fs     : fs,
+		moment : moment,
+		axios  : axios,
+		format : {
 			number : function (value, params) {
 				let decimalCount = params != null && params.decimals != null ? params.decimals : 2;
 				let thousandComma = params != null && params.comma != null ? params.comma : true;
@@ -65,7 +65,7 @@ const utils = {
 				}
 			}
 		},
-		money   : {
+		money  : {
 			normalize : function (value, options) {
 				let res = Number(parseFloat(value).toFixed(2));
 				if (isNaN(res)) {
@@ -82,7 +82,7 @@ const utils = {
 				}
 			}
 		},
-		date    : {
+		date   : {
 			now  : function () {
 				return moment();
 			},
@@ -93,7 +93,7 @@ const utils = {
 				return moment().unix();
 			}
 		},
-		data    : {
+		data   : {
 			populate         : function (obj, source) {
 				let model = obj._doc || obj;
 				for (let i in model) {
@@ -147,7 +147,7 @@ const utils = {
 				return result.join('\n');
 			}
 		},
-		url     : {
+		url    : {
 			hierarchy : function (value) {
 				value = this.normalize(value);
 				value = value.substr(1).replace(('/', '.'));
@@ -169,7 +169,7 @@ const utils = {
 				return new URL(url)
 			}
 		},
-		file    : {
+		file   : {
 			fetch  : function (filePath, options) {
 				return new Promise(function (resolve, reject) {
 					fs.readFile(filePath, 'utf8', function (err, data) {
@@ -254,7 +254,7 @@ const utils = {
 			exists : fs.existsSync,
 			stats  : fs.statSync
 		},
-		email   : {
+		email  : {
 			validate : function (mail) {
 				if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
 					return true;

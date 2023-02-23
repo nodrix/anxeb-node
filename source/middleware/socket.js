@@ -2,10 +2,9 @@
 
 const Namespace = require('./namespace').instance;
 const http = require('http');
-const request = require('request');
+const https = require('https');
+const axios = require('axios');
 const ip = require('ip');
-const requestpn = require('request-promise-native');
-const Stack = require('../common/stack').instance;
 
 module.exports = {
 	instance : function (service, settings) {
@@ -57,13 +56,51 @@ module.exports = {
 		};
 
 		_self.io = require('socket.io')(_self.server, _options);
-		let _request = requestpn;
+
+		let _method = function (method) {
+			return async function (options) {
+				options.method = options.method ?? method;
+				options.url = options.url ?? options.uri;
+				options.data = options.data ?? (typeof options.json === 'object' ? options.json : null) ?? options.payload ?? options.body;
+				options.params = options.params ?? options.qs ?? options.query;
+
+				options.httpAgent = options.httpAgent ?? (options.strictSSL != null || options.cert != null || options.key != null) ? new https.Agent({
+					rejectUnauthorized : options.strictSSL,
+					cert               : options.cert,
+					key                : options.key,
+					passphrase         : options.passphrase,
+				}) : null;
+
+
+				if (options.json === true) {
+					options.headers['Content-Type'] = 'application/json';
+				}
+
+				delete options.json;
+				delete options.payload;
+				delete options.qs;
+				delete options.query;
+				delete options.body;
+				delete options.uri;
+				delete options.strictSSL;
+				delete options.cert;
+				delete options.key;
+				delete options.passphrase;
+
+				const res = await axios(options);
+				if (options.resolveWithFullResponse === true) {
+					return res;
+				} else {
+					return res.data;
+				}
+			}
+		};
 
 		_self.do = {
-			get    : _request.get,
-			post   : _request.post,
-			put    : _request.put,
-			delete : _request.delete
+			get    : _method('GET'),
+			post   : _method('POST'),
+			put    : _method('PUT'),
+			delete : _method('DELETE')
 		};
 
 		_self.include = {
