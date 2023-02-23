@@ -195,7 +195,7 @@ module.exports = {
 		_self.service.express.use(_self.router);
 
 		_self.service.express.use(function (req, res, next) {
-			let err = _self.service.log.exception.page_not_found.args(req.url).print().toError();
+			let err = _self.service.log.exception.page_not_found.args(req.url, req.method).print().toError();
 			_self.send.error(req, res, err, 404);
 		});
 

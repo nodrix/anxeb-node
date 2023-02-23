@@ -67,7 +67,7 @@ module.exports = {
 
 	// ====== *** : HTTP errors ========================================================================================
 	page_not_found      : {
-		message : 'Resource from URL [0] not found.',
+		message : 'Resource from URL [0:w] not found on method [1:w].',
 		code    : 404,
 		type    : eventTypes.http_error
 	},
