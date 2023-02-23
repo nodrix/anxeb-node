@@ -57,4 +57,12 @@ module.exports = {
 		type    : eventTypes.debug_log,
 		color   : 'bgBlueBright'
 	},
+	node_version            : {
+		message : 'Node Version: [0:C].',
+		type    : eventTypes.debug_log
+	},
+	node_platform            : {
+		message : 'Platform: [0:C].',
+		type    : eventTypes.debug_log
+	},
 };

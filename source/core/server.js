@@ -1,5 +1,5 @@
 'use strict';
-
+const os = require('os');
 const Log = require('../middleware/log').instance;
 const Locator = require('../common/locator').instance;
 const Service = require('./service');
@@ -51,6 +51,8 @@ module.exports = function (params) {
 			_self.log.debug.server_remark_log.args(_self.remark.key, _self.remark.value).print();
 		}
 	}
+	_self.log.debug.node_version.args(process.version).print();
+	_self.log.debug.node_platform.args(`${os.type()} ${os.release()}`).print();
 	_self.log.break();
 
 	_self.include = {
