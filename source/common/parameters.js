@@ -158,6 +158,7 @@ const parameters = {
 			process('settings.scheduler.jobs');
 			process('settings.routing.routes');
 			process('settings.routing.actions');
+			process('settings.routing.swagger.document.apis');
 			process('settings.renderer.static');
 			process('settings.renderer.favicon');
 			process('settings.renderer.templates.partials');

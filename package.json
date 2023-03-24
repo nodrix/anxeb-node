@@ -1,6 +1,6 @@
 {
 	"name": "anxeb-node",
-	"version": "2.2.0",
+	"version": "2.2.1",
 	"description": "Highly scalable NodeJS web application bundle.",
 	"main": "index.js",
 	"repository": {
@@ -54,6 +54,8 @@
 	  	"redis": "^3.1.2",
 		"serve-favicon": "^2.5.0",
 		"socket.io": "^4.6.1",
+		"swagger-jsdoc": "^6.2.8",
+		"swagger-ui-express": "^4.6.2",
 		"url-parse": "^1.5.1",
 		"uuid": "^9.0.0"
 	}
