@@ -324,6 +324,7 @@ module.exports = {
 
 				delete _settings.redis;
 				_settings.store = new RedisStore({ client : _redisClient });
+				_self.service.redis = _redisClient;
 				_self.service.express.use(session(_settings));
 			} else {
 				_self.service.express.use(session(_settings));
