@@ -4,6 +4,8 @@ const Router = require('express').Router;
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
+const swaggerUI = require('swagger-ui-express');
+const swaggerJSDoc = require('swagger-jsdoc');
 const Stack = require('../common/stack').instance;
 const eventTypes = require('../middleware/event').types;
 const routeTypes = require('../middleware/route').types;
@@ -190,6 +192,10 @@ module.exports = {
 				abortOnLimit  : true,
 				uploadTimeout : 1800000
 			} : _self.settings.upload));
+		}
+
+		if (_self.settings.swagger && _self.settings.swagger.url && _self.settings.swagger.document) {
+			_self.service.express.use(_self.settings.swagger.url, swaggerUI.serve, swaggerUI.setup(swaggerJSDoc(_self.settings.swagger.document), _self.settings.swagger.options));
 		}
 
 		_self.service.express.use(_self.router);
