@@ -294,14 +294,15 @@ module.exports = {
 				params.next(err);
 			}
 
-			if (params == null || params.silent !== true) {
-				try {
-					throw err;
-				} catch (err) {
-					_self.stack = new Stack(err);
+			try {
+				throw err;
+			} catch (err) {
+				_self.stack = new Stack(err);
+				if (params == null || params.silent !== true) {
 					throw err;
 				}
 			}
+
 		};
 
 		this.bubble = function (params) {
