@@ -100,7 +100,8 @@ module.exports = {
 			get    : _method('GET'),
 			post   : _method('POST'),
 			put    : _method('PUT'),
-			delete : _method('DELETE')
+			patch  : _method('PATCH'),
+			delete : _method('DELETE'),
 		};
 
 		_self.include = {
